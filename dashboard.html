@@ -48,7 +48,7 @@
     <input type="text" id="title" placeholder="Título do Projeto" />
     <input type="text" id="client" placeholder="Cliente" />
     <textarea id="description" placeholder="Descrição"></textarea>
-    <select id="status" class="select-modern">
+    <select id="status" class="custom-select">
       <option value="producao">Produção</option>
       <option value="entregue">Entregue</option>
       <option value="pagamento">Pagamento pendente</option>
@@ -57,28 +57,44 @@
     <input type="number" id="total" placeholder="Valor Total (R$)" />
     <input type="number" id="paid" placeholder="Valor Pago (R$)" />
 
-    <!-- Despesas do Projeto -->
     <hr />
-    <h4>Despesas do Projeto</h4>
-    
-    <div class="expense-form">
-      <input type="text" id="expenseDesc" placeholder="Descrição da Despesa" />
-      <input type="number" id="expenseValue" placeholder="Valor (R$)" />
-      <select id="expenseCategory" class="select-modern">
-        <option value="material">Material</option>
-        <option value="frete">Frete</option>
-        <option value="serviços">Serviços</option>
-      </select>
-      <button id="btn-add-expense">Adicionar Despesa</button>
-    </div>
 
-    <ul id="projectExpensesList" class="expenses-list"></ul>
+    <div class="form-flex-container">
+      <!-- Despesas -->
+      <div class="form-section">
+        <h4>Despesas do Projeto</h4>
+        <div class="expense-form">
+          <input type="text" id="expenseDesc" placeholder="Descrição da Despesa" />
+          <input type="number" id="expenseValue" placeholder="Valor (R$)" />
+          <select id="expenseCategory" class="custom-select">
+            <option value="material">Material</option>
+            <option value="frete">Frete</option>
+            <option value="serviços">Serviços</option>
+          </select>
+          <button id="btn-add-expense">Adicionar Despesa</button>
+        </div>
+        <ul id="projectExpensesList" class="expenses-list"></ul>
+      </div>
+
+      <!-- Receitas -->
+      <div class="form-section">
+        <h4>Receitas do Projeto</h4>
+        <div class="income-form">
+          <input type="text" id="incomeDesc" placeholder="Descrição do pagamento" />
+          <input type="number" id="incomeValue" placeholder="Valor (R$)" />
+          <input type="date" id="incomeDate" />
+          <button id="btn-add-income">Adicionar Receita</button>
+        </div>
+        <ul id="projectIncomesList" class="incomes-list"></ul>
+      </div>
+    </div>
 
     <div class="modal-actions">
       <button class="save-btn" id="btn-save">Salvar</button>
       <button class="cancel-btn" id="btn-cancel">Cancelar</button>
     </div>
   </div>
+
 
   <!-- JavaScript -->
   <script type="module">
@@ -155,11 +171,14 @@
         document.getElementById('total').value = project.valor_total;
         document.getElementById('paid').value = project.valor_pago;
         loadExpensesForProject(editId);
+        loadIncomesForProject(editId); // <- adiciona receitas
       } else {
         editId = null;
         clearForm();
         projectExpenses = [];
+        projectIncomes = [];
         renderProjectExpenses();
+        renderProjectIncomes();
       }
     }
 
@@ -279,6 +298,81 @@
         alert('Erro ao adicionar despesa: ' + error.message);
       }
     }
+
+    let projectIncomes = [];
+
+    // Carregar receitas de um projeto
+    async function loadIncomesForProject(projetoId) {
+      const { data, error } = await supabase
+        .from('receitas')
+        .select('*')
+        .eq('projeto_id', projetoId)
+        .order('data', { ascending: false });
+
+      if (!error) {
+        projectIncomes = data;
+        renderProjectIncomes();
+      }
+    }
+
+    // Renderizar receitas
+    function renderProjectIncomes() {
+      const list = document.getElementById('projectIncomesList');
+      list.innerHTML = '';
+
+      if (projectIncomes.length === 0) {
+        list.innerHTML = '<li style="text-align:center; color:#888;">Nenhuma receita adicionada</li>';
+        return;
+      }
+
+      projectIncomes.forEach((r) => {
+        const item = document.createElement('li');
+        item.innerHTML = `
+          <div>
+            <strong>${r.descricao}</strong>
+            <br><small>${r.data || ''}</small>
+          </div>
+          <span class="value">R$${r.valor.toFixed(2)}</span>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    // Adicionar receita
+    async function addIncomeToProject() {
+      const descricao = document.getElementById('incomeDesc').value;
+      const valor = Number(document.getElementById('incomeValue').value);
+      const data = document.getElementById('incomeDate').value;
+
+      if (!descricao || !valor || !data) {
+        alert('Preencha descrição, valor e data da receita.');
+        return;
+      }
+
+      const { data: inserted, error } = await supabase.from('receitas').insert([
+        {
+          projeto_id: editId,
+          descricao,
+          valor,
+          data,
+        },
+      ]);
+
+      if (!error) {
+        document.getElementById('incomeDesc').value = '';
+        document.getElementById('incomeValue').value = '';
+        document.getElementById('incomeDate').value = '';
+        loadIncomesForProject(editId);
+      } else {
+        alert('Erro ao adicionar receita: ' + error.message);
+      }
+    }
+
+    // Vincula evento ao botão
+    document.getElementById('btn-add-income').addEventListener('click', addIncomeToProject);
+
+
+
 
     function renderCards() {
       const container = document.getElementById('cardsContainer');
