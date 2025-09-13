@@ -36,125 +36,133 @@
         <p id="saldo">R$ 0,00</p>
       </div>
     </div>
-    
-    <h3>Projetos</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Título</th>
-          <th>Cliente</th>
-          <th>Pago (R$)</th>
-          <th>Despesas (R$)</th>
-          <th>Lucro (R$)</th>
-        </tr>
-      </thead>
-      <tbody id="projectFinanceBody"></tbody>
-    </table> </br>
 
-    <h3>Despesas Externas</h3>
-    <button id="btn-add-external-expense">Nova Despesa Externa</button>
-    <ul id="externalExpensesList"></ul>
-  </div>
+    <!-- Botão e Lista -->
+    <h3>Receitas</h3>
+    <button id="btn-new-income">Nova Receita</button>
+    <ul id="incomesList"></ul>
 
-  <script type="module">
+    <h3>Despesas</h3>
+    <button id="btn-add-external-expense">Nova Despesa</button>
+    <ul id="expensesList"></ul>
+
+    <!-- Overlay e Modal de Receita -->
+    <div id="overlay"></div>
+
+    <div id="incomeForm" class="modal">
+      <h3>Nova Receita</h3>
+      <input type="text" id="incomeDesc" placeholder="Descrição" />
+      <input type="number" id="incomeValue" placeholder="Valor (R$)" />
+      <input type="date" id="incomeDate" />
+      <div class="modal-actions">
+        <button id="btn-save-income" class="save-btn">Salvar</button>
+        <button id="btn-cancel-income" class="cancel-btn">Cancelar</button>
+      </div>
+    </div>
+
+    <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const supabase = createClient(
       'https://oncnehknyafxttztjteu.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uY25laGtueWFmeHR0enRqdGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MjIzMjEsImV4cCI6MjA3MzI5ODMyMX0.qtqZAi48XqokjQOSn6hFcgVZZRlBk9UcFLeUJjTcA98'
+      'YOUR_SUPABASE_ANON_KEY'
     );
 
     const filterMonthInput = document.getElementById('filterMonth');
+    const overlay = document.getElementById('overlay');
+    const incomeForm = document.getElementById('incomeForm');
 
     async function loadFinanceData() {
-      const { data: projetos } = await supabase.from('projetos').select('*');
       const { data: despesas } = await supabase.from('despesas').select('*');
+      const { data: receitas } = await supabase.from('receitas').select('*');
 
-      // Filtro do mês no formato YYYY-MM
       const filtroMes = filterMonthInput.value;
 
-      // Filtra projetos que tem campo data_pagamento e bate com filtroMes, ou pega todos se vazio
-      const projetosFiltrados = filtroMes
-        ? projetos.filter(p => p.data_pagamento?.startsWith(filtroMes))
-        : projetos;
-
-      // Filtra despesas pelo mês, ou todas se filtro vazio
       const despesasFiltradas = filtroMes
         ? despesas.filter(d => d.data?.startsWith(filtroMes))
         : despesas;
 
-      // Calcula total receitas, despesas e saldo
-      const totalReceitas = projetosFiltrados.reduce((sum, p) => sum + (p.valor_pago || 0), 0);
-      const totalDespesas = despesasFiltradas.reduce((sum, d) => sum + (d.valor || 0), 0);
+      const receitasFiltradas = filtroMes
+        ? receitas.filter(r => r.data?.startsWith(filtroMes))
+        : receitas;
+
+      const totalDespesas = despesasFiltradas.reduce((sum, d) => sum + Number(d.valor), 0);
+      const totalReceitas = receitasFiltradas.reduce((sum, r) => sum + Number(r.valor), 0);
       const saldo = totalReceitas - totalDespesas;
 
-      // Atualiza cards
       document.getElementById('totalReceitas').textContent = `R$ ${totalReceitas.toFixed(2)}`;
       document.getElementById('totalDespesas').textContent = `R$ ${totalDespesas.toFixed(2)}`;
       document.getElementById('saldo').textContent = `R$ ${saldo.toFixed(2)}`;
 
-      // Atualiza tabela projetos
-      const body = document.getElementById('projectFinanceBody');
-      body.innerHTML = '';
-
-      projetosFiltrados.forEach(proj => {
-        const relacionadas = despesasFiltradas.filter(d => d.projeto_id === proj.id);
-        const totalDespesasProjeto = relacionadas.reduce((sum, d) => sum + Number(d.valor), 0);
-        const lucro = proj.valor_pago - totalDespesasProjeto;
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${proj.titulo}</td>
-          <td>${proj.cliente}</td>
-          <td>R$${proj.valor_pago.toFixed(2)}</td>
-          <td>R$${totalDespesasProjeto.toFixed(2)}</td>
-          <td>R$${lucro.toFixed(2)}</td>
-        `;
-        body.appendChild(row);
+      // Renderiza receitas
+      const incomesList = document.getElementById('incomesList');
+      incomesList.innerHTML = '';
+      if (receitasFiltradas.length === 0) incomesList.innerHTML = '<li>Nenhuma receita</li>';
+      receitasFiltradas.forEach(r => {
+        const li = document.createElement('li');
+        li.textContent = `${r.data} | ${r.descricao} — R$${Number(r.valor).toFixed(2)}`;
+        incomesList.appendChild(li);
       });
 
-      // Atualiza lista despesas externas
-      const extList = document.getElementById('externalExpensesList');
-      const externas = despesasFiltradas.filter(d => d.projeto_id === null);
-      extList.innerHTML = '';
-
-      externas.forEach(d => {
-        const item = document.createElement('li');
-        item.textContent = `${d.data} - ${d.categoria} | ${d.descricao} — R$${d.valor.toFixed(2)}`;
-        extList.appendChild(item);
+      // Renderiza despesas
+      const expensesList = document.getElementById('expensesList');
+      expensesList.innerHTML = '';
+      if (despesasFiltradas.length === 0) expensesList.innerHTML = '<li>Nenhuma despesa</li>';
+      despesasFiltradas.forEach(d => {
+        const li = document.createElement('li');
+        li.textContent = `${d.data} | ${d.categoria} | ${d.descricao} — R$${Number(d.valor).toFixed(2)}`;
+        expensesList.appendChild(li);
       });
     }
 
-    document.getElementById('btn-logout').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = 'index.html';
+    // Mostrar modal de receita
+    document.getElementById('btn-new-income').addEventListener('click', () => {
+      overlay.style.display = 'block';
+      incomeForm.style.display = 'block';
+      clearIncomeForm();
     });
 
-    document.getElementById('btn-add-external-expense').addEventListener('click', async () => {
-      const desc = prompt('Descrição da despesa:');
-      const valor = parseFloat(prompt('Valor da despesa (R$):'));
-      const categoria = prompt('Categoria (material, frete, serviços):');
-      const data = prompt('Data da despesa (AAAA-MM-DD):');
+    // Salvar receita
+    document.getElementById('btn-save-income').addEventListener('click', async () => {
+      const desc = document.getElementById('incomeDesc').value;
+      const valor = parseFloat(document.getElementById('incomeValue').value);
+      const data = document.getElementById('incomeDate').value;
 
-      if (!desc || isNaN(valor) || !categoria || !data) {
-        alert('Campos inválidos.');
+      if (!desc || isNaN(valor) || !data) {
+        alert('Preencha todos os campos corretamente.');
         return;
       }
 
-      await supabase.from('despesas').insert([{
+      await supabase.from('receitas').insert([{
         descricao: desc,
         valor,
-        categoria,
         data,
         projeto_id: null
       }]);
 
+      closeIncomeForm();
       loadFinanceData();
     });
+
+    // Cancelar modal
+    document.getElementById('btn-cancel-income').addEventListener('click', closeIncomeForm);
+    overlay.addEventListener('click', closeIncomeForm);
+
+    function closeIncomeForm() {
+      overlay.style.display = 'none';
+      incomeForm.style.display = 'none';
+    }
+
+    function clearIncomeForm() {
+      document.getElementById('incomeDesc').value = '';
+      document.getElementById('incomeValue').value = '';
+      document.getElementById('incomeDate').value = '';
+    }
 
     filterMonthInput.addEventListener('change', loadFinanceData);
 
     loadFinanceData();
-  </script>
+    </script>
+
 </body>
 </html>
