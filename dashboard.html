@@ -420,13 +420,16 @@
         }
 
         let prazoMsg = '';
-        if (p.daysLeft !== null) {
+
+        // Mostrar aviso apenas se o projeto NÃO estiver entregue
+        if (p.status !== 'entregue' && p.daysLeft !== null) {
           if (p.daysLeft < 0) {
             prazoMsg = `<span class="warning warning-red">Projeto atrasado há ${Math.abs(p.daysLeft)} dias.</span>`;
           } else {
             prazoMsg = `<span class="warning warning-yellow">Faltam ${p.daysLeft} dias para o prazo.</span>`;
           }
         }
+
 
         const statusClass =
           p.status === 'producao'
@@ -496,6 +499,10 @@
     const hoje = new Date();
 
     return projetos.slice().sort((a, b) => {
+      // Colocar entregues no final
+      if (a.status === 'entregue' && b.status !== 'entregue') return 1;
+      if (b.status === 'entregue' && a.status !== 'entregue') return -1;
+      
       // Converte prazos para datas
       const prazoA = a.prazo ? new Date(a.prazo) : null;
       const prazoB = b.prazo ? new Date(b.prazo) : null;
