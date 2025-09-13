@@ -700,3 +700,48 @@ tbody tr:hover {
 .deliver-btn:hover {
   background-color: #218838;
 }
+
+/* Modal entrega projeto */
+#deliverModal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  justify-content: center; align-items: center;
+}
+
+#deliverModal .modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  text-align: center;
+}
+
+#deliverModal .modal-actions button {
+  margin: 5px;
+  padding: 5px 15px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+#deliverModal .save-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+#deliverModal .save-btn:hover {
+  background-color: #218838;
+}
+
+#deliverModal .cancel-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+#deliverModal .cancel-btn:hover {
+  background-color: #c82333;
+}

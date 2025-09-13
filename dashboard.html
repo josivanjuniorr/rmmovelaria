@@ -40,6 +40,19 @@
     <div id="cardsContainer" class="cards-container"></div>
   </div>
 
+  <!-- Modal de confirmação de entrega -->
+  <div id="deliverModal" class="modal">
+    <div class="modal-content">
+      <h3>Entregar Projeto</h3>
+      <p>O projeto foi totalmente pago?</p>
+      <div class="modal-actions">
+        <button id="btn-deliver-yes" class="save-btn">Sim</button>
+        <button id="btn-deliver-no" class="cancel-btn">Não</button>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Overlay e Modal -->
   <div id="overlay"></div>
 
@@ -377,7 +390,6 @@
 
       const today = new Date();
 
-      // Atualiza daysLeft para cada projeto
       filteredProjects.forEach((p) => {
         if (p.prazo) {
           const prazoDate = new Date(p.prazo);
@@ -387,36 +399,32 @@
         }
       });
 
-      // Ordena pelo prazo (mais urgente primeiro)
       filteredProjects = ordenarProjetosPrioridade(filteredProjects);
 
       const start = (currentPage - 1) * perPage;
       const end = start + perPage;
       const pageItems = filteredProjects.slice(start, end);
 
+      const deliverModal = document.getElementById('deliverModal');
+      const btnYes = document.getElementById('btn-deliver-yes');
+      const btnNo = document.getElementById('btn-deliver-no');
+      let currentProjectId = null;
+
       pageItems.forEach((p) => {
         const card = document.createElement('div');
         card.className = 'project-card';
 
-        const isPaidOff = p.valor_pago >= p.valor_total;
-
-        // Formata data do prazo
         let formattedDate = '';
         if (p.prazo) {
           const d = new Date(p.prazo);
-          formattedDate = `${String(d.getDate()).padStart(2, '0')}/${String(
-            d.getMonth() + 1
-          ).padStart(2, '0')}/${d.getFullYear()}`;
+          formattedDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2,'0')}/${d.getFullYear()}`;
         }
 
-        // Aviso prazo atrasado ou faltando dias
         let prazoMsg = '';
         if (p.daysLeft !== null) {
-          if (p.daysLeft < 0 && !isPaidOff) {
-            prazoMsg = `<span class="warning warning-red">Projeto atrasado há ${Math.abs(
-              p.daysLeft
-            )} dias.</span>`;
-          } else if (p.daysLeft >= 0 && !isPaidOff) {
+          if (p.daysLeft < 0) {
+            prazoMsg = `<span class="warning warning-red">Projeto atrasado há ${Math.abs(p.daysLeft)} dias.</span>`;
+          } else {
             prazoMsg = `<span class="warning warning-yellow">Faltam ${p.daysLeft} dias para o prazo.</span>`;
           }
         }
@@ -440,38 +448,48 @@
           <div class="info">
             <div><strong>Prazo:</strong> ${formattedDate}</div>
             <div><strong>Total:</strong> R$${p.valor_total ?? 0}</div>
-            <div><strong>Pago:</strong> R$${p.valor_pago ?? 0}</div>
           </div>
           ${prazoMsg}
         `;
 
-        // Botão Entregar Projeto
-        const deliverBtn = document.createElement('button');
-        deliverBtn.textContent = 'Entregar Projeto';
-        deliverBtn.className = 'deliver-btn';
-        deliverBtn.addEventListener('click', async (e) => {
-          e.stopPropagation(); // evita abrir modal do projeto
+        // Botão entregar projeto somente se não estiver entregue
+        if (p.status !== 'entregue') {
+          const deliverBtn = document.createElement('button');
+          deliverBtn.textContent = 'Entregar Projeto';
+          deliverBtn.className = 'deliver-btn';
+          deliverBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentProjectId = p.id;
+            deliverModal.style.display = 'flex';
+          });
+          card.appendChild(deliverBtn);
+        }
 
-          const pagoCompletamente = confirm('O projeto foi totalmente pago?');
-
-          const novoStatus = pagoCompletamente ? 'entregue' : 'pagamento';
-
-          await supabase.from('projetos')
-            .update({ status: novoStatus })
-            .eq('id', p.id);
-
-          alert(`Status atualizado para "${novoStatus === 'entregue' ? 'Entregue' : 'Pagamento pendente'}".`);
-          loadProjects();
-        });
-
-        card.appendChild(deliverBtn);
         card.addEventListener('click', () => openForm(p));
-
         container.appendChild(card);
       });
 
       renderPagination();
+
+      // Eventos do modal
+      btnYes.onclick = async () => {
+        await supabase.from('projetos').update({ status: 'entregue' }).eq('id', currentProjectId);
+        deliverModal.style.display = 'none';
+        loadProjects();
+      };
+
+      btnNo.onclick = async () => {
+        await supabase.from('projetos').update({ status: 'pagamento' }).eq('id', currentProjectId);
+        deliverModal.style.display = 'none';
+        loadProjects();
+      };
+
+      deliverModal.onclick = (e) => {
+        if (e.target === deliverModal) deliverModal.style.display = 'none';
+      };
     }
+
+
 
 
 
