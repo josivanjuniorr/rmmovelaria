@@ -535,24 +535,26 @@ tbody tr:hover {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 10px;  /* garante espaçamento entre título e status */
   margin-bottom: 8px;
-  gap: 10px; /* espaço entre título e status */
 }
+
 
 .card-header h4 {
-  flex: 1; /* ocupa o máximo possível sem empurrar o status */
-  font-size: 1rem;
-  font-weight: 600;
-  color: #0a1a3d;
-  word-break: break-word; /* quebra linha se for muito longo */
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.2;
+  flex: 1;
   overflow: hidden;
-  text-overflow: ellipsis; /* mostra "..." se o texto ultrapassar */
-  display: -webkit-box;
-  -webkit-line-clamp: 2; /* limita a 2 linhas */
+  display: -webkit-box;        /* necessário para o clamp funcionar */
   -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;       /* limita a 2 linhas */
+  word-break: break-word;       /* quebra palavras muito longas */
 }
 
+
 .status-badge {
+  white-space: nowrap;      /* mantém o texto em uma linha */
   flex-shrink: 0; /* não encolhe */
   font-size: 0.75rem;
   font-weight: bold;
