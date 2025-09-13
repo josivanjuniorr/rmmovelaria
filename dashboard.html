@@ -9,7 +9,7 @@
 <body>
   <!-- Sidebar -->
   <div class="sidebar">
-    <h1>RM Movelaria</h1>
+    <h1>RA Movelaria</h1>
     <a href="#">Dashboard</a>
     <a href="#">Clientes</a>
     <a href="financeiro.html">Financeiro</a>
@@ -323,20 +323,7 @@
           ${prazoMsg}
         `;
 
-        const actions = document.createElement('div');
-        actions.className = 'card-actions';
-
-        const editBtn = document.createElement('button');
-        editBtn.textContent = 'Editar';
-        editBtn.addEventListener('click', () => openForm(p));
-
-        const delBtn = document.createElement('button');
-        delBtn.textContent = 'Excluir';
-        delBtn.addEventListener('click', () => deleteProject(p.id));
-
-        actions.appendChild(editBtn);
-        actions.appendChild(delBtn);
-        card.appendChild(actions);
+        card.addEventListener('click', () => openForm(p));
 
         container.appendChild(card);
       });
