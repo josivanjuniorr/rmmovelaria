@@ -576,4 +576,41 @@ tbody tr:hover {
   color: white;
 }
 
+/* Estilo moderno para selects do projeto */
+#projectForm select,
+#projectForm input[type="date"],
+#projectForm input[type="number"] {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  appearance: none; /* Remove estilo padrão */
+  background: #fff url('data:image/svg+xml;charset=US-ASCII,<svg fill="gray" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
+  background-size: 16px;
+  cursor: pointer;
+}
 
+#projectForm select:focus {
+  border-color: #4169E1;
+  box-shadow: 0 0 6px rgba(65,105,225,0.3);
+  outline: none;
+  background-color: #f5faff;
+}
+
+/* Categoria da despesa específica */
+#expenseCategory {
+  max-width: 200px; /* se quiser limitar o tamanho */
+}
+
+/* Badge interno opcional para categoria no form (para visual extra) */
+.expense-category-label {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: #e3e7ff;
+  color: #2c3e50;
+  font-size: 0.8rem;
+  margin-left: 6px;
+}
