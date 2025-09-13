@@ -554,7 +554,6 @@ tbody tr:hover {
 
 
 .status-badge {
-  white-space: nowrap;      /* mantém o texto em uma linha */
   flex-shrink: 0; /* não encolhe */
   font-size: 0.75rem;
   font-weight: bold;
