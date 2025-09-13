@@ -156,14 +156,27 @@
     }
 
     async function loadProjects() {
-      const { data, error } = await supabase
+      const { data: projectsData, error: projectsError } = await supabase
         .from('projetos')
         .select('*')
         .order('created_at', { ascending: false });
-      if (!error) {
-        projects = data;
+
+      if (!projectsError) {
+        projects = projectsData;
         filteredProjects = [...projects];
+
+        // Carrega todas as receitas de todos os projetos
+        const { data: incomesData, error: incomesError } = await supabase
+          .from('receitas')
+          .select('*');
+
+        if (!incomesError) {
+          projectIncomes = incomesData; // atualiza a variável global
+        } else {
+          console.error('Erro ao carregar receitas:', incomesError);
+        }
       }
+
       renderCards();
     }
 
