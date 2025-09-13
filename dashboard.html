@@ -389,20 +389,19 @@
 
       const today = new Date();
 
-      filteredProjects.forEach((p) => {
+      // Calcula valor a receber para cada projeto
+      filteredProjects.forEach(p => {
         if (p.prazo) {
           const prazoDate = new Date(p.prazo);
           p.daysLeft = Math.ceil((prazoDate - today) / (1000 * 60 * 60 * 24));
         } else {
           p.daysLeft = null;
         }
-        // Calcula valor total recebido
+
+        // Calcula total de receitas do projeto
         const receitasDoProjeto = projectIncomes.filter(r => r.projeto_id === p.id);
         const totalRecebido = receitasDoProjeto.reduce((sum, r) => sum + Number(r.valor), 0);
-
-        // Valor a receber
-        const valorAReceber = (p.valor_total ?? 0) - totalRecebido;
-
+        p.valorAReceber = (p.valor_total ?? 0) - totalRecebido;
       });
 
       filteredProjects = ordenarProjetosPrioridade(filteredProjects);
@@ -427,8 +426,6 @@
         }
 
         let prazoMsg = '';
-
-        // Mostrar aviso apenas se o projeto estiver em produção
         if (p.status === 'producao' && p.daysLeft !== null) {
           if (p.daysLeft < 0) {
             prazoMsg = `<span class="warning warning-red">Projeto atrasado há ${Math.abs(p.daysLeft)} dias.</span>`;
@@ -436,7 +433,6 @@
             prazoMsg = `<span class="warning warning-yellow">Faltam ${p.daysLeft} dias para o prazo.</span>`;
           }
         }
-
 
         const statusClass =
           p.status === 'producao'
@@ -457,12 +453,11 @@
           <div class="info">
             <div><strong>Prazo:</strong> ${formattedDate}</div>
             <div><strong>Total:</strong> R$${p.valor_total ?? 0}</div>
-            <div><strong>Valor a receber:</strong> R$${valorAReceber.toFixed(2)}</div>
+            <div><strong>Valor a receber:</strong> R$${p.valorAReceber.toFixed(2)}</div>
           </div>
           ${prazoMsg}
         `;
 
-        // Botão entregar projeto somente se estiver em produção
         if (p.status === 'producao') {
           const deliverBtn = document.createElement('button');
           deliverBtn.textContent = 'Entregar Projeto';
@@ -475,14 +470,12 @@
           card.appendChild(deliverBtn);
         }
 
-
         card.addEventListener('click', () => openForm(p));
         container.appendChild(card);
       });
 
       renderPagination();
 
-      // Eventos do modal
       btnYes.onclick = async () => {
         await supabase.from('projetos').update({ status: 'entregue' }).eq('id', currentProjectId);
         deliverModal.style.display = 'none';
@@ -499,10 +492,6 @@
         if (e.target === deliverModal) deliverModal.style.display = 'none';
       };
     }
-
-
-
-
 
     function ordenarProjetosPrioridade(projetos) {
       const hoje = new Date();
