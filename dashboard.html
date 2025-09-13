@@ -48,6 +48,11 @@
     <input type="text" id="title" placeholder="Título do Projeto" />
     <input type="text" id="client" placeholder="Cliente" />
     <textarea id="description" placeholder="Descrição"></textarea>
+    <select id="status">
+      <option value="producao">Produção</option>
+      <option value="entregue">Entregue</option>
+      <option value="pagamento">Pagamento pendente</option>
+    </select>
     <input type="date" id="deadline" />
     <input type="number" id="total" placeholder="Valor Total (R$)" />
     <input type="number" id="paid" placeholder="Valor Pago (R$)" />
@@ -55,8 +60,7 @@
     <!-- Despesas do Projeto -->
     <hr />
     <h4>Despesas do Projeto</h4>
-    <ul id="projectExpensesList" class="expenses-list"></ul>
-
+    
     <div class="expense-form">
       <input type="text" id="expenseDesc" placeholder="Descrição da Despesa" />
       <input type="number" id="expenseValue" placeholder="Valor (R$)" />
@@ -67,6 +71,8 @@
       </select>
       <button id="btn-add-expense">Adicionar Despesa</button>
     </div>
+
+    <ul id="projectExpensesList" class="expenses-list"></ul>
 
     <div class="modal-actions">
       <button class="save-btn" id="btn-save">Salvar</button>
@@ -144,10 +150,10 @@
         document.getElementById('title').value = project.titulo;
         document.getElementById('client').value = project.cliente;
         document.getElementById('description').value = project.descricao;
+        document.getElementById('status').value = project.status || 'producao';
         document.getElementById('deadline').value = project.prazo;
         document.getElementById('total').value = project.valor_total;
         document.getElementById('paid').value = project.valor_pago;
-
         loadExpensesForProject(editId);
       } else {
         editId = null;
@@ -167,16 +173,19 @@
       document.getElementById('title').value = '';
       document.getElementById('client').value = '';
       document.getElementById('description').value = '';
+      document.getElementById('status').value = 'producao';
       document.getElementById('deadline').value = '';
       document.getElementById('total').value = '';
       document.getElementById('paid').value = '';
     }
+
 
     async function saveProject() {
       const projectData = {
         titulo: document.getElementById('title').value,
         cliente: document.getElementById('client').value,
         descricao: document.getElementById('description').value,
+        status: document.getElementById('status').value,
         prazo: document.getElementById('deadline').value,
         valor_total: Number(document.getElementById('total').value),
         valor_pago: Number(document.getElementById('paid').value),
@@ -219,14 +228,25 @@
       const list = document.getElementById('projectExpensesList');
       list.innerHTML = '';
 
+      if (projectExpenses.length === 0) {
+        list.innerHTML = '<li style="text-align:center; color:#888;">Nenhuma despesa adicionada</li>';
+        return;
+      }
+
       projectExpenses.forEach((e) => {
         const item = document.createElement('li');
-        item.innerHTML = `${e.data} - <strong>${e.categoria}</strong> | ${e.descricao} — R$${e.valor.toFixed(
-          2
-        )}`;
+        item.innerHTML = `
+          <div>
+            <strong>${e.descricao}</strong> 
+            <span class="category">${e.categoria}</span>
+            <br><small>${e.data || ''}</small>
+          </div>
+          <span class="value">R$${e.valor.toFixed(2)}</span>
+        `;
         list.appendChild(item);
       });
     }
+
 
     async function addExpenseToProject() {
       const descricao = document.getElementById('expenseDesc').value;
@@ -309,6 +329,15 @@
           } else if (p.daysLeft >= 0 && !isPaidOff) {
             prazoMsg = `<span class="warning warning-yellow">Faltam ${p.daysLeft} dias para o prazo.</span>`;
           }
+        }
+
+        let statusBadge = '';
+        if (p.status === 'producao') {
+          statusBadge = `<span class="status-badge status-producao">Produção</span>`;
+        } else if (p.status === 'entregue') {
+          statusBadge = `<span class="status-badge status-entregue">Entregue</span>`;
+        } else if (p.status === 'pagamento') {
+          statusBadge = `<span class="status-badge status-pagamento">Pagamento pendente</span>`;
         }
 
         card.innerHTML = `
