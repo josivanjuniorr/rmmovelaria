@@ -371,7 +371,7 @@
 
 
 
-    function renderCards() {
+    async function renderCards() {
       const container = document.getElementById('cardsContainer');
       container.innerHTML = '';
 
@@ -398,7 +398,6 @@
         const card = document.createElement('div');
         card.className = 'project-card';
 
-        // Calcula se projeto está pago totalmente
         const isPaidOff = p.valor_pago >= p.valor_total;
 
         // Formata data do prazo
@@ -420,15 +419,6 @@
           } else if (p.daysLeft >= 0 && !isPaidOff) {
             prazoMsg = `<span class="warning warning-yellow">Faltam ${p.daysLeft} dias para o prazo.</span>`;
           }
-        }
-
-        let statusBadge = '';
-        if (p.status === 'producao') {
-          statusBadge = `<span class="status-badge status-producao">Produção</span>`;
-        } else if (p.status === 'entregue') {
-          statusBadge = `<span class="status-badge status-entregue">Entregue</span>`;
-        } else if (p.status === 'pagamento') {
-          statusBadge = `<span class="status-badge status-pagamento">Pagamento pendente</span>`;
         }
 
         const statusClass =
@@ -455,6 +445,26 @@
           ${prazoMsg}
         `;
 
+        // Botão Entregar Projeto
+        const deliverBtn = document.createElement('button');
+        deliverBtn.textContent = 'Entregar Projeto';
+        deliverBtn.className = 'deliver-btn';
+        deliverBtn.addEventListener('click', async (e) => {
+          e.stopPropagation(); // evita abrir modal do projeto
+
+          const pagoCompletamente = confirm('O projeto foi totalmente pago?');
+
+          const novoStatus = pagoCompletamente ? 'entregue' : 'pagamento';
+
+          await supabase.from('projetos')
+            .update({ status: novoStatus })
+            .eq('id', p.id);
+
+          alert(`Status atualizado para "${novoStatus === 'entregue' ? 'Entregue' : 'Pagamento pendente'}".`);
+          loadProjects();
+        });
+
+        card.appendChild(deliverBtn);
         card.addEventListener('click', () => openForm(p));
 
         container.appendChild(card);
@@ -462,6 +472,7 @@
 
       renderPagination();
     }
+
 
 
     function ordenarProjetosPrioridade(projetos) {
