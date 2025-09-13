@@ -396,6 +396,13 @@
         } else {
           p.daysLeft = null;
         }
+        // Calcula valor total recebido
+        const receitasDoProjeto = projectIncomes.filter(r => r.projeto_id === p.id);
+        const totalRecebido = receitasDoProjeto.reduce((sum, r) => sum + Number(r.valor), 0);
+
+        // Valor a receber
+        const valorAReceber = (p.valor_total ?? 0) - totalRecebido;
+
       });
 
       filteredProjects = ordenarProjetosPrioridade(filteredProjects);
@@ -450,6 +457,7 @@
           <div class="info">
             <div><strong>Prazo:</strong> ${formattedDate}</div>
             <div><strong>Total:</strong> R$${p.valor_total ?? 0}</div>
+            <div><strong>Valor a receber:</strong> R$${valorAReceber.toFixed(2)}</div>
           </div>
           ${prazoMsg}
         `;
