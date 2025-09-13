@@ -76,12 +76,14 @@
         <div class="expense-form">
           <input type="text" id="expenseDesc" placeholder="Descrição da Despesa" />
           <input type="number" id="expenseValue" placeholder="Valor (R$)" />
-          <select id="expenseCategory" class="custom-select">
-            <option value="material">Material</option>
-            <option value="frete">Frete</option>
-            <option value="serviços">Serviços</option>
-          </select>
-          <input type="date" id="expenseDate" />
+          <div class="expense-row">
+            <select id="expenseCategory" class="custom-select">
+              <option value="material">Material</option>
+              <option value="frete">Frete</option>
+              <option value="serviços">Serviços</option>
+            </select>
+            <input type="date" id="expenseDate" />
+          </div>
           <button id="btn-add-expense">Adicionar Despesa</button>
         </div>
         <ul id="projectExpensesList" class="expenses-list"></ul>

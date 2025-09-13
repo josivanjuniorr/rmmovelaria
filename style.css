@@ -784,3 +784,15 @@ tbody tr:hover {
   justify-content: center;
   gap: 10px;
 }
+
+.expense-row {
+  display: flex;
+  gap: 10px; /* espaçamento entre os elementos */
+}
+
+.expense-row select,
+.expense-row input {
+  flex: 1; /* faz cada elemento ocupar espaço igual */
+  padding: 5px;
+  font-size: 14px;
+}
