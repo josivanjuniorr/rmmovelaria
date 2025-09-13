@@ -523,4 +523,41 @@ tbody tr:hover {
   color: #ff8f00;
 }
 
+.card {
+  position: relative;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 8px;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+
+.status-producao {
+  background-color: #ffcc00;
+  color: #000;
+}
+
+.status-entregue {
+  background-color: #4caf50;
+  color: white;
+}
+
+.status-pagamento {
+  background-color: #f44336;
+  color: white;
+}
 
