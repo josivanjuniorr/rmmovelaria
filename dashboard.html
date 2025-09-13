@@ -501,8 +501,8 @@
 
       return projetos.slice().sort((a, b) => {
         // Projetos entregues ou pendentes vão pro final
-        const statusA = (a.status === 'entregue' || a.status === 'pagamento') ? 1 : 0;
-        const statusB = (b.status === 'entregue' || b.status === 'pagamento') ? 1 : 0;
+        const statusA = (a.status === 'pagamento' || a.status === 'entregue') ? 1 : 0;
+        const statusB = (b.status === 'pagamento' || b.status === 'entregue') ? 1 : 0;
         if (statusA !== statusB) return statusA - statusB;
 
         // Converte prazos para datas
