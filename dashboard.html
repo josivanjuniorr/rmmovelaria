@@ -179,7 +179,6 @@
         document.getElementById('status').value = project.status || 'producao';
         document.getElementById('deadline').value = project.prazo;
         document.getElementById('total').value = project.valor_total;
-        document.getElementById('paid').value = project.valor_pago;
         loadExpensesForProject(editId);
         loadIncomesForProject(editId); // <- adiciona receitas
       } else {
@@ -217,7 +216,6 @@
         status: document.getElementById('status').value,
         prazo: document.getElementById('deadline').value,
         valor_total: Number(document.getElementById('total').value),
-        valor_pago: Number(document.getElementById('paid').value),
       };
 
       try {
