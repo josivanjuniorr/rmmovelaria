@@ -81,6 +81,7 @@
             <option value="frete">Frete</option>
             <option value="serviços">Serviços</option>
           </select>
+          <input type="date" id="expenseDate" />
           <button id="btn-add-expense">Adicionar Despesa</button>
         </div>
         <ul id="projectExpensesList" class="expenses-list"></ul>
@@ -276,11 +277,12 @@
 
       projectExpenses.forEach((e) => {
         const item = document.createElement('li');
+        const formattedDate = e.data ? new Date(e.data).toLocaleDateString() : '';
         item.innerHTML = `
           <div>
             <strong>${e.descricao}</strong> 
             <span class="category">${e.categoria}</span>
-            <br><small>${e.data || ''}</small>
+            <br><small>${formattedDate}</small>
           </div>
           <span class="value">R$${e.valor.toFixed(2)}</span>
         `;
@@ -288,38 +290,38 @@
       });
     }
 
-
     async function addExpenseToProject() {
       const descricao = document.getElementById('expenseDesc').value;
       const valor = Number(document.getElementById('expenseValue').value);
       const categoria = document.getElementById('expenseCategory').value;
+      const data = document.getElementById('expenseDate').value;
 
-      if (!descricao || !valor || !categoria) {
-        alert('Preencha descrição, valor e categoria da despesa.');
+      if (!descricao || !valor || !categoria || !data) {
+        alert('Preencha descrição, valor, categoria e data da despesa.');
         return;
       }
 
-      const { data, error } = await supabase.from('despesas').insert([
+      const { data: inserted, error } = await supabase.from('despesas').insert([
         {
           projeto_id: editId,
           descricao,
           valor,
           categoria,
+          data,
         },
       ]);
-
-      console.log('addExpenseToProject -> data:', data);
-      console.log('addExpenseToProject -> error:', error);
 
       if (!error) {
         document.getElementById('expenseDesc').value = '';
         document.getElementById('expenseValue').value = '';
         document.getElementById('expenseCategory').value = 'material';
+        document.getElementById('expenseDate').value = '';
         loadExpensesForProject(editId);
       } else {
         alert('Erro ao adicionar despesa: ' + error.message);
       }
     }
+
 
     let projectIncomes = [];
 
