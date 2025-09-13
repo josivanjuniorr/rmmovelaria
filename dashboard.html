@@ -421,8 +421,8 @@
 
         let prazoMsg = '';
 
-        // Mostrar aviso apenas se o projeto NÃO estiver entregue
-        if (p.status !== 'entregue' && p.daysLeft !== null) {
+        // Mostrar aviso apenas se o projeto estiver em produção
+        if (p.status === 'producao' && p.daysLeft !== null) {
           if (p.daysLeft < 0) {
             prazoMsg = `<span class="warning warning-red">Projeto atrasado há ${Math.abs(p.daysLeft)} dias.</span>`;
           } else {
@@ -454,8 +454,8 @@
           ${prazoMsg}
         `;
 
-        // Botão entregar projeto somente se não estiver entregue
-        if (p.status !== 'entregue') {
+        // Botão entregar projeto somente se estiver em produção
+        if (p.status === 'producao') {
           const deliverBtn = document.createElement('button');
           deliverBtn.textContent = 'Entregar Projeto';
           deliverBtn.className = 'deliver-btn';
@@ -466,6 +466,7 @@
           });
           card.appendChild(deliverBtn);
         }
+
 
         card.addEventListener('click', () => openForm(p));
         container.appendChild(card);
@@ -496,56 +497,53 @@
 
 
     function ordenarProjetosPrioridade(projetos) {
-    const hoje = new Date();
+      const hoje = new Date();
 
-    return projetos.slice().sort((a, b) => {
-      // Colocar entregues no final
-      if (a.status === 'entregue' && b.status !== 'entregue') return 1;
-      if (b.status === 'entregue' && a.status !== 'entregue') return -1;
-      
-      // Converte prazos para datas
-      const prazoA = a.prazo ? new Date(a.prazo) : null;
-      const prazoB = b.prazo ? new Date(b.prazo) : null;
+      return projetos.slice().sort((a, b) => {
+        // Projetos entregues ou pendentes vão pro final
+        const statusA = (a.status === 'entregue' || a.status === 'pagamento') ? 1 : 0;
+        const statusB = (b.status === 'entregue' || b.status === 'pagamento') ? 1 : 0;
+        if (statusA !== statusB) return statusA - statusB;
 
-      // Calcula dias de atraso ou dias restantes
-      const diasA = prazoA ? Math.ceil((prazoA - hoje) / (1000 * 60 * 60 * 24)) : null;
-      const diasB = prazoB ? Math.ceil((prazoB - hoje) / (1000 * 60 * 60 * 24)) : null;
+        // Converte prazos para datas
+        const prazoA = a.prazo ? new Date(a.prazo) : null;
+        const prazoB = b.prazo ? new Date(b.prazo) : null;
 
-      // Função para definir categoria de prioridade:
-      // 0: atrasado (dias < 0)
-      // 1: próximo do prazo (0 <= dias <= 7) - pode ajustar o limite se quiser
-      // 2: prazo longe ou indefinido
-      function categoria(dias) {
-        if (dias === null) return 2;
-        if (dias < 0) return 0;
-        if (dias <= 7) return 1;
-        return 2;
-      }
+        // Calcula dias de atraso ou dias restantes
+        const diasA = prazoA ? Math.ceil((prazoA - hoje) / (1000 * 60 * 60 * 24)) : null;
+        const diasB = prazoB ? Math.ceil((prazoB - hoje) / (1000 * 60 * 60 * 24)) : null;
 
-      const catA = categoria(diasA);
-      const catB = categoria(diasB);
+        // Função para definir categoria de prioridade:
+        // 0: atrasado (dias < 0)
+        // 1: próximo do prazo (0 <= dias <= 7)
+        // 2: prazo longe ou indefinido
+        function categoria(dias) {
+          if (dias === null) return 2;
+          if (dias < 0) return 0;
+          if (dias <= 7) return 1;
+          return 2;
+        }
 
-      // Prioriza pela categoria
-      if (catA !== catB) return catA - catB;
+        const catA = categoria(diasA);
+        const catB = categoria(diasB);
 
-      // Dentro da mesma categoria, ordena:
-      // Para atrasados: maior atraso primeiro (dias negativos, ordena crescente)
-      if (catA === 0) return diasA - diasB; // -10 vem antes de -5 (mais atrasado)
+        // Prioriza pela categoria
+        if (catA !== catB) return catA - catB;
 
-      // Para próximos do prazo: menor dias restantes primeiro
-      if (catA === 1) return diasA - diasB;
+        // Dentro da mesma categoria, ordena:
+        if (catA === 0) return diasA - diasB; // mais atrasado primeiro
+        if (catA === 1) return diasA - diasB;
+        if (catA === 2) {
+          if (diasA === null && diasB === null) return 0;
+          if (diasA === null) return 1;
+          if (diasB === null) return -1;
+          return diasA - diasB;
+        }
 
-      // Para prazo longe ou indefinido, ordena por prazo crescente ou mantém ordem
-      if (catA === 2) {
-        if (diasA === null && diasB === null) return 0;
-        if (diasA === null) return 1;
-        if (diasB === null) return -1;
-        return diasA - diasB;
-      }
+        return 0;
+      });
+    }
 
-      return 0;
-    });
-  }
 
 
     function renderPagination() {
