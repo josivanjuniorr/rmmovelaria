@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Dashboard - Movelaria</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h1>Movelaria</h1>
+    <a href="#">Dashboard</a>
+    <a href="#">Clientes</a>
+    <a href="financeiro.html">Financeiro</a>
+    <a href="#" id="btn-logout">Sair</a>
+  </div>
+
+  <!-- Conteúdo Principal -->
+  <div class="main">
+    <h2>Projetos</h2>
+    <div style="margin-bottom:15px;">
+      <button id="btn-new-project">Novo Projeto</button>
+    </div>
+
+    <div class="project-controls">
+      <input
+        type="text"
+        id="filterInput"
+        placeholder="Buscar por título ou cliente..."
+      />
+      <select id="perPageSelect">
+        <option value="5">5 por página</option>
+        <option value="10" selected>10 por página</option>
+        <option value="20">20 por página</option>
+      </select>
+    </div>
+
+    <div id="pagination" class="pagination"></div>
+    <div id="cardsContainer" class="cards-container"></div>
+  </div>
+
+  <!-- Overlay e Modal -->
+  <div id="overlay"></div>
+
+  <div id="projectForm">
+    <h3>Projeto</h3>
+    <input type="text" id="title" placeholder="Título do Projeto" />
+    <input type="text" id="client" placeholder="Cliente" />
+    <textarea id="description" placeholder="Descrição"></textarea>
+    <input type="date" id="deadline" />
+    <input type="number" id="total" placeholder="Valor Total (R$)" />
+    <input type="number" id="paid" placeholder="Valor Pago (R$)" />
+
+    <!-- Despesas do Projeto -->
+    <hr />
+    <h4>Despesas do Projeto</h4>
+    <ul id="projectExpensesList" class="expenses-list"></ul>
+
+    <div class="expense-form">
+      <input type="text" id="expenseDesc" placeholder="Descrição da Despesa" />
+      <input type="number" id="expenseValue" placeholder="Valor (R$)" />
+      <select id="expenseCategory">
+        <option value="material">Material</option>
+        <option value="frete">Frete</option>
+        <option value="serviços">Serviços</option>
+      </select>
+      <button id="btn-add-expense">Adicionar Despesa</button>
+    </div>
+
+    <div class="modal-actions">
+      <button class="save-btn" id="btn-save">Salvar</button>
+      <button class="cancel-btn" id="btn-cancel">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabase = createClient(
+      'https://oncnehknyafxttztjteu.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uY25laGtueWFmeHR0enRqdGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MjIzMjEsImV4cCI6MjA3MzI5ODMyMX0.qtqZAi48XqokjQOSn6hFcgVZZRlBk9UcFLeUJjTcA98'
+    );
+
+    let projects = [];
+    let filteredProjects = [];
+    let editId = null;
+    let projectExpenses = [];
+
+    const overlay = document.getElementById('overlay');
+    let currentPage = 1;
+    let perPage = 10;
+
+    // Filtro e paginação
+    document.getElementById('filterInput').addEventListener('input', () => {
+      const search = document.getElementById('filterInput').value.toLowerCase();
+      filteredProjects = projects.filter(
+        (p) =>
+          p.titulo.toLowerCase().includes(search) ||
+          p.cliente.toLowerCase().includes(search)
+      );
+      currentPage = 1;
+      renderCards();
+    });
+
+    document.getElementById('perPageSelect').addEventListener('change', () => {
+      perPage = Number(document.getElementById('perPageSelect').value);
+      currentPage = 1;
+      renderCards();
+    });
+
+    async function checkAuth() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) window.location.href = 'index.html';
+      else loadProjects();
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = 'index.html';
+    }
+
+    async function loadProjects() {
+      const { data, error } = await supabase
+        .from('projetos')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!error) {
+        projects = data;
+        filteredProjects = [...projects];
+      }
+      renderCards();
+    }
+
+    function openForm(project = null) {
+      overlay.style.display = 'block';
+      document.getElementById('projectForm').style.display = 'block';
+
+      if (project) {
+        editId = project.id;
+        document.getElementById('title').value = project.titulo;
+        document.getElementById('client').value = project.cliente;
+        document.getElementById('description').value = project.descricao;
+        document.getElementById('deadline').value = project.prazo;
+        document.getElementById('total').value = project.valor_total;
+        document.getElementById('paid').value = project.valor_pago;
+
+        loadExpensesForProject(editId);
+      } else {
+        editId = null;
+        clearForm();
+        projectExpenses = [];
+        renderProjectExpenses();
+      }
+    }
+
+    function closeForm() {
+      overlay.style.display = 'none';
+      document.getElementById('projectForm').style.display = 'none';
+      clearForm();
+    }
+
+    function clearForm() {
+      document.getElementById('title').value = '';
+      document.getElementById('client').value = '';
+      document.getElementById('description').value = '';
+      document.getElementById('deadline').value = '';
+      document.getElementById('total').value = '';
+      document.getElementById('paid').value = '';
+    }
+
+    async function saveProject() {
+      const projectData = {
+        titulo: document.getElementById('title').value,
+        cliente: document.getElementById('client').value,
+        descricao: document.getElementById('description').value,
+        prazo: document.getElementById('deadline').value,
+        valor_total: Number(document.getElementById('total').value),
+        valor_pago: Number(document.getElementById('paid').value),
+      };
+
+      try {
+        if (editId) {
+          await supabase.from('projetos').update(projectData).eq('id', editId);
+        } else {
+          await supabase.from('projetos').insert([projectData]);
+        }
+        closeForm();
+        loadProjects();
+      } catch (err) {
+        alert('Erro ao salvar projeto');
+      }
+    }
+
+    async function deleteProject(id) {
+      if (confirm('Deseja realmente excluir este projeto?')) {
+        await supabase.from('projetos').delete().eq('id', id);
+        loadProjects();
+      }
+    }
+
+    async function loadExpensesForProject(projetoId) {
+      const { data, error } = await supabase
+        .from('despesas')
+        .select('*')
+        .eq('projeto_id', projetoId)
+        .order('data', { ascending: false });
+
+      if (!error) {
+        projectExpenses = data;
+        renderProjectExpenses();
+      }
+    }
+
+    function renderProjectExpenses() {
+      const list = document.getElementById('projectExpensesList');
+      list.innerHTML = '';
+
+      projectExpenses.forEach((e) => {
+        const item = document.createElement('li');
+        item.innerHTML = `${e.data} - <strong>${e.categoria}</strong> | ${e.descricao} — R$${e.valor.toFixed(
+          2
+        )}`;
+        list.appendChild(item);
+      });
+    }
+
+    async function addExpenseToProject() {
+      const descricao = document.getElementById('expenseDesc').value;
+      const valor = Number(document.getElementById('expenseValue').value);
+      const categoria = document.getElementById('expenseCategory').value;
+
+      if (!descricao || !valor || !categoria) {
+        alert('Preencha descrição, valor e categoria da despesa.');
+        return;
+      }
+
+      const { data, error } = await supabase.from('despesas').insert([
+        {
+          projeto_id: editId,
+          descricao,
+          valor,
+          categoria,
+        },
+      ]);
+
+      console.log('addExpenseToProject -> data:', data);
+      console.log('addExpenseToProject -> error:', error);
+
+      if (!error) {
+        document.getElementById('expenseDesc').value = '';
+        document.getElementById('expenseValue').value = '';
+        document.getElementById('expenseCategory').value = 'material';
+        loadExpensesForProject(editId);
+      } else {
+        alert('Erro ao adicionar despesa: ' + error.message);
+      }
+    }
+
+    function renderCards() {
+      const container = document.getElementById('cardsContainer');
+      container.innerHTML = '';
+
+      const today = new Date();
+
+      // Atualiza daysLeft para cada projeto
+      filteredProjects.forEach((p) => {
+        if (p.prazo) {
+          const prazoDate = new Date(p.prazo);
+          p.daysLeft = Math.ceil((prazoDate - today) / (1000 * 60 * 60 * 24));
+        } else {
+          p.daysLeft = null;
+        }
+      });
+
+      // Ordena pelo prazo (mais urgente primeiro)
+      filteredProjects = ordenarProjetosPrioridade(filteredProjects);
+
+      const start = (currentPage - 1) * perPage;
+      const end = start + perPage;
+      const pageItems = filteredProjects.slice(start, end);
+
+      pageItems.forEach((p) => {
+        const card = document.createElement('div');
+        card.className = 'project-card';
+
+        // Calcula se projeto está pago totalmente
+        const isPaidOff = p.valor_pago >= p.valor_total;
+
+        // Formata data do prazo
+        let formattedDate = '';
+        if (p.prazo) {
+          const d = new Date(p.prazo);
+          formattedDate = `${String(d.getDate()).padStart(2, '0')}/${String(
+            d.getMonth() + 1
+          ).padStart(2, '0')}/${d.getFullYear()}`;
+        }
+
+        // Aviso prazo atrasado ou faltando dias
+        let prazoMsg = '';
+        if (p.daysLeft !== null) {
+          if (p.daysLeft < 0 && !isPaidOff) {
+            prazoMsg = `<span class="warning warning-red">Projeto atrasado há ${Math.abs(
+              p.daysLeft
+            )} dias.</span>`;
+          } else if (p.daysLeft >= 0 && !isPaidOff) {
+            prazoMsg = `<span class="warning warning-yellow">Faltam ${p.daysLeft} dias para o prazo.</span>`;
+          }
+        }
+
+        card.innerHTML = `
+          <h4>${p.titulo}</h4>
+          <p><strong>Cliente:</strong> ${p.cliente}</p>
+          <p>${p.descricao}</p>
+          <div class="info">
+            <div><strong>Prazo:</strong> ${formattedDate}</div>
+            <div><strong>Total:</strong> R$${p.valor_total}</div>
+            <div><strong>Pago:</strong> R$${p.valor_pago}</div>
+          </div>
+          ${prazoMsg}
+        `;
+
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Editar';
+        editBtn.addEventListener('click', () => openForm(p));
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Excluir';
+        delBtn.addEventListener('click', () => deleteProject(p.id));
+
+        actions.appendChild(editBtn);
+        actions.appendChild(delBtn);
+        card.appendChild(actions);
+
+        container.appendChild(card);
+      });
+
+      renderPagination();
+    }
+
+
+    function ordenarProjetosPrioridade(projetos) {
+    const hoje = new Date();
+
+    return projetos.slice().sort((a, b) => {
+      // Converte prazos para datas
+      const prazoA = a.prazo ? new Date(a.prazo) : null;
+      const prazoB = b.prazo ? new Date(b.prazo) : null;
+
+      // Calcula dias de atraso ou dias restantes
+      const diasA = prazoA ? Math.ceil((prazoA - hoje) / (1000 * 60 * 60 * 24)) : null;
+      const diasB = prazoB ? Math.ceil((prazoB - hoje) / (1000 * 60 * 60 * 24)) : null;
+
+      // Função para definir categoria de prioridade:
+      // 0: atrasado (dias < 0)
+      // 1: próximo do prazo (0 <= dias <= 7) - pode ajustar o limite se quiser
+      // 2: prazo longe ou indefinido
+      function categoria(dias) {
+        if (dias === null) return 2;
+        if (dias < 0) return 0;
+        if (dias <= 7) return 1;
+        return 2;
+      }
+
+      const catA = categoria(diasA);
+      const catB = categoria(diasB);
+
+      // Prioriza pela categoria
+      if (catA !== catB) return catA - catB;
+
+      // Dentro da mesma categoria, ordena:
+      // Para atrasados: maior atraso primeiro (dias negativos, ordena crescente)
+      if (catA === 0) return diasA - diasB; // -10 vem antes de -5 (mais atrasado)
+
+      // Para próximos do prazo: menor dias restantes primeiro
+      if (catA === 1) return diasA - diasB;
+
+      // Para prazo longe ou indefinido, ordena por prazo crescente ou mantém ordem
+      if (catA === 2) {
+        if (diasA === null && diasB === null) return 0;
+        if (diasA === null) return 1;
+        if (diasB === null) return -1;
+        return diasA - diasB;
+      }
+
+      return 0;
+    });
+  }
+
+
+    function renderPagination() {
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+      const totalPages = Math.ceil(filteredProjects.length / perPage);
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        if (i === currentPage) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+          currentPage = i;
+          renderCards();
+        });
+        pagination.appendChild(btn);
+      }
+    }
+
+    // Eventos
+    document.getElementById('btn-new-project').addEventListener('click', () => openForm());
+    document.getElementById('btn-cancel').addEventListener('click', closeForm);
+    document.getElementById('btn-save').addEventListener('click', saveProject);
+    document.getElementById('btn-logout').addEventListener('click', logout);
+    document.getElementById('btn-add-expense').addEventListener('click', addExpenseToProject);
+    overlay.addEventListener('click', closeForm);
+
+    checkAuth();
+  </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Financeiro - Movelaria</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="sidebar">
+    <h1>Movelaria</h1>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="#">Clientes</a>
+    <a href="financeiro.html">Financeiro</a>
+    <a href="#" id="btn-logout">Sair</a>
+  </div>
+
+  <div class="main">
+    <h2>Resumo Financeiro</h2>
+
+    <div class="finance-summary-controls">
+      <label for="filterMonth">Filtrar por mês:</label>
+      <input type="month" id="filterMonth" />
+    </div>
+
+    <div class="summary-cards">
+      <div class="card receitas-card">
+        <h3>Total Receitas</h3>
+        <p id="totalReceitas">R$ 0,00</p>
+      </div>
+      <div class="card despesas-card">
+        <h3>Total Despesas</h3>
+        <p id="totalDespesas">R$ 0,00</p>
+      </div>
+      <div class="card saldo-card">
+        <h3>Saldo</h3>
+        <p id="saldo">R$ 0,00</p>
+      </div>
+    </div>
+    
+    <h3>Projetos</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Cliente</th>
+          <th>Pago (R$)</th>
+          <th>Despesas (R$)</th>
+          <th>Lucro (R$)</th>
+        </tr>
+      </thead>
+      <tbody id="projectFinanceBody"></tbody>
+    </table> </br>
+
+    <h3>Despesas Externas</h3>
+    <button id="btn-add-external-expense">Nova Despesa Externa</button>
+    <ul id="externalExpensesList"></ul>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabase = createClient(
+      'https://oncnehknyafxttztjteu.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uY25laGtueWFmeHR0enRqdGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MjIzMjEsImV4cCI6MjA3MzI5ODMyMX0.qtqZAi48XqokjQOSn6hFcgVZZRlBk9UcFLeUJjTcA98'
+    );
+
+    const filterMonthInput = document.getElementById('filterMonth');
+
+    async function loadFinanceData() {
+      const { data: projetos } = await supabase.from('projetos').select('*');
+      const { data: despesas } = await supabase.from('despesas').select('*');
+
+      // Filtro do mês no formato YYYY-MM
+      const filtroMes = filterMonthInput.value;
+
+      // Filtra projetos que tem campo data_pagamento e bate com filtroMes, ou pega todos se vazio
+      const projetosFiltrados = filtroMes
+        ? projetos.filter(p => p.data_pagamento?.startsWith(filtroMes))
+        : projetos;
+
+      // Filtra despesas pelo mês, ou todas se filtro vazio
+      const despesasFiltradas = filtroMes
+        ? despesas.filter(d => d.data?.startsWith(filtroMes))
+        : despesas;
+
+      // Calcula total receitas, despesas e saldo
+      const totalReceitas = projetosFiltrados.reduce((sum, p) => sum + (p.valor_pago || 0), 0);
+      const totalDespesas = despesasFiltradas.reduce((sum, d) => sum + (d.valor || 0), 0);
+      const saldo = totalReceitas - totalDespesas;
+
+      // Atualiza cards
+      document.getElementById('totalReceitas').textContent = `R$ ${totalReceitas.toFixed(2)}`;
+      document.getElementById('totalDespesas').textContent = `R$ ${totalDespesas.toFixed(2)}`;
+      document.getElementById('saldo').textContent = `R$ ${saldo.toFixed(2)}`;
+
+      // Atualiza tabela projetos
+      const body = document.getElementById('projectFinanceBody');
+      body.innerHTML = '';
+
+      projetosFiltrados.forEach(proj => {
+        const relacionadas = despesasFiltradas.filter(d => d.projeto_id === proj.id);
+        const totalDespesasProjeto = relacionadas.reduce((sum, d) => sum + Number(d.valor), 0);
+        const lucro = proj.valor_pago - totalDespesasProjeto;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${proj.titulo}</td>
+          <td>${proj.cliente}</td>
+          <td>R$${proj.valor_pago.toFixed(2)}</td>
+          <td>R$${totalDespesasProjeto.toFixed(2)}</td>
+          <td>R$${lucro.toFixed(2)}</td>
+        `;
+        body.appendChild(row);
+      });
+
+      // Atualiza lista despesas externas
+      const extList = document.getElementById('externalExpensesList');
+      const externas = despesasFiltradas.filter(d => d.projeto_id === null);
+      extList.innerHTML = '';
+
+      externas.forEach(d => {
+        const item = document.createElement('li');
+        item.textContent = `${d.data} - ${d.categoria} | ${d.descricao} — R$${d.valor.toFixed(2)}`;
+        extList.appendChild(item);
+      });
+    }
+
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = 'index.html';
+    });
+
+    document.getElementById('btn-add-external-expense').addEventListener('click', async () => {
+      const desc = prompt('Descrição da despesa:');
+      const valor = parseFloat(prompt('Valor da despesa (R$):'));
+      const categoria = prompt('Categoria (material, frete, serviços):');
+      const data = prompt('Data da despesa (AAAA-MM-DD):');
+
+      if (!desc || isNaN(valor) || !categoria || !data) {
+        alert('Campos inválidos.');
+        return;
+      }
+
+      await supabase.from('despesas').insert([{
+        descricao: desc,
+        valor,
+        categoria,
+        data,
+        projeto_id: null
+      }]);
+
+      loadFinanceData();
+    });
+
+    filterMonthInput.addEventListener('change', loadFinanceData);
+
+    loadFinanceData();
+  </script>
+</body>
+</html>
