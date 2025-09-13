@@ -340,14 +340,26 @@
           statusBadge = `<span class="status-badge status-pagamento">Pagamento pendente</span>`;
         }
 
+        const statusClass =
+          p.status === 'producao'
+            ? 'status-badge status-producao'
+            : p.status === 'entregue'
+            ? 'status-badge status-entregue'
+            : 'status-badge status-pagamento';
+
         card.innerHTML = `
-          <h4>${p.titulo}</h4>
+          <div class="card-header">
+            <h4>${p.titulo}</h4>
+            <span class="${statusClass}">
+              ${p.status === 'producao' ? 'Produção' : p.status === 'entregue' ? 'Entregue' : 'Pagamento pendente'}
+            </span>
+          </div>
           <p><strong>Cliente:</strong> ${p.cliente}</p>
           <p>${p.descricao}</p>
           <div class="info">
             <div><strong>Prazo:</strong> ${formattedDate}</div>
-            <div><strong>Total:</strong> R$${p.valor_total}</div>
-            <div><strong>Pago:</strong> R$${p.valor_pago}</div>
+            <div><strong>Total:</strong> R$${p.valor_total ?? 0}</div>
+            <div><strong>Pago:</strong> R$${p.valor_pago ?? 0}</div>
           </div>
           ${prazoMsg}
         `;
