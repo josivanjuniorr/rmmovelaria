@@ -56,7 +56,7 @@
     let editId = null;
     let projectExpenses = [];
 
-    const overlay = document.getElementById('overlay');
+  // overlay removido
     let currentPage = 1;
     let perPage = 10;
 
@@ -116,70 +116,7 @@
       renderCards();
     }
 
-    function openForm(project = null) {
-      overlay.style.display = 'block';
-      document.getElementById('projectForm').style.display = 'block';
-
-      if (project) {
-        editId = project.id;
-        document.getElementById('title').value = project.titulo;
-        document.getElementById('client').value = project.cliente;
-        document.getElementById('description').value = project.descricao;
-        document.getElementById('status').value = project.status || 'producao';
-        document.getElementById('deadline').value = project.prazo;
-        document.getElementById('total').value = project.valor_total;
-        loadExpensesForProject(editId);
-        loadIncomesForProject(editId); // <- adiciona receitas
-      } else {
-        editId = null;
-        clearForm();
-        projectExpenses = [];
-        projectIncomes = [];
-        renderProjectExpenses();
-        renderProjectIncomes();
-      }
-    }
-
-    function closeForm() {
-      overlay.style.display = 'none';
-      document.getElementById('projectForm').style.display = 'none';
-      clearForm();
-    }
-
-    function clearForm() {
-      document.getElementById('title').value = '';
-      document.getElementById('client').value = '';
-      document.getElementById('description').value = '';
-      document.getElementById('status').value = 'producao';
-      document.getElementById('deadline').value = '';
-      document.getElementById('total').value = '';
-      // document.getElementById('paid').value = '';
-    }
-
-
-    async function saveProject() {
-      const projectData = {
-        titulo: document.getElementById('title').value,
-        cliente: document.getElementById('client').value,
-        descricao: document.getElementById('description').value,
-        status: document.getElementById('status').value,
-        prazo: document.getElementById('deadline').value,
-        valor_total: Number(document.getElementById('total').value),
-      };
-
-      try {
-        if (editId) {
-          await supabase.from('projetos').update(projectData).eq('id', editId);
-        } else {
-          await supabase.from('projetos').insert([projectData]);
-        }
-        closeForm();
-        loadProjects();
-      } catch (err) {
-          alert('Erro ao salvar projeto: ' + err.message);
-          console.error(err);
-        }
-    }
+    // Funções do modal removidas
 
     async function deleteProject(id) {
       if (confirm('Deseja realmente excluir este projeto?')) {
