@@ -114,14 +114,145 @@
         alert('Erro ao salvar projeto: ' + error.message);
       }
     }
+    // Funções para despesas e receitas (reaproveitando do dashboard)
+    let projectExpenses = [];
+    let projectIncomes = [];
+
+    async function loadExpensesForProject(projetoId) {
+      const { data, error } = await supabase
+        .from('despesas')
+        .select('*')
+        .eq('projeto_id', projetoId)
+        .order('data', { ascending: false });
+      if (!error) {
+        projectExpenses = data;
+        renderProjectExpenses();
+      }
+    }
+
+    function renderProjectExpenses() {
+      const list = document.getElementById('projectExpensesList');
+      list.innerHTML = '';
+      if (projectExpenses.length === 0) {
+        list.innerHTML = '<li style="text-align:center; color:#888;">Nenhuma despesa adicionada</li>';
+        return;
+      }
+      projectExpenses.forEach((e) => {
+        const item = document.createElement('li');
+        const formattedDate = e.data ? new Date(e.data).toLocaleDateString() : '';
+        item.innerHTML = `
+          <div>
+            <strong>${e.descricao}</strong> 
+            <span class="category">${e.categoria}</span>
+            <br><small>${formattedDate}</small>
+          </div>
+          <span class="value">R$${e.valor.toFixed(2)}</span>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    async function addExpenseToProject() {
+      const descricao = document.getElementById('expenseDesc').value;
+      const valor = Number(document.getElementById('expenseValue').value);
+      const categoria = document.getElementById('expenseCategory').value;
+      const data = document.getElementById('expenseDate').value;
+      if (!descricao || !valor || !categoria || !data) {
+        alert('Preencha descrição, valor, categoria e data da despesa.');
+        return;
+      }
+      const { error } = await supabase.from('despesas').insert([
+        {
+          projeto_id: getIdFromUrl(),
+          descricao,
+          valor,
+          categoria,
+          data,
+        },
+      ]);
+      if (!error) {
+        document.getElementById('expenseDesc').value = '';
+        document.getElementById('expenseValue').value = '';
+        document.getElementById('expenseCategory').value = 'material';
+        document.getElementById('expenseDate').value = '';
+        loadExpensesForProject(getIdFromUrl());
+      } else {
+        alert('Erro ao adicionar despesa.');
+      }
+    }
+
+    async function loadIncomesForProject(projetoId) {
+      const { data, error } = await supabase
+        .from('receitas')
+        .select('*')
+        .eq('projeto_id', projetoId)
+        .order('data', { ascending: false });
+      if (!error) {
+        projectIncomes = data;
+        renderProjectIncomes();
+      }
+    }
+
+    function renderProjectIncomes() {
+      const list = document.getElementById('projectIncomesList');
+      list.innerHTML = '';
+      if (projectIncomes.length === 0) {
+        list.innerHTML = '<li style="text-align:center; color:#888;">Nenhuma receita adicionada</li>';
+        return;
+      }
+      projectIncomes.forEach((r) => {
+        const item = document.createElement('li');
+        item.innerHTML = `
+          <div>
+            <strong>${r.descricao}</strong>
+            <br><small>${r.data || ''}</small>
+          </div>
+          <span class="value">R$${r.valor.toFixed(2)}</span>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    async function addIncomeToProject() {
+      const descricao = document.getElementById('incomeDesc').value;
+      const valor = Number(document.getElementById('incomeValue').value);
+      const data = document.getElementById('incomeDate').value;
+      if (!descricao || !valor || !data) {
+        alert('Preencha descrição, valor e data da receita.');
+        return;
+      }
+      const { error } = await supabase.from('receitas').insert([
+        {
+          projeto_id: getIdFromUrl(),
+          descricao,
+          valor,
+          data,
+        },
+      ]);
+      if (!error) {
+        document.getElementById('incomeDesc').value = '';
+        document.getElementById('incomeValue').value = '';
+        document.getElementById('incomeDate').value = '';
+        loadIncomesForProject(getIdFromUrl());
+      } else {
+        alert('Erro ao adicionar receita.');
+      }
+    }
+
+    document.getElementById('btn-add-expense').addEventListener('click', addExpenseToProject);
+    document.getElementById('btn-add-income').addEventListener('click', addIncomeToProject);
+
     document.getElementById('projectFormPage').addEventListener('submit', saveProject);
     document.getElementById('btn-logout').addEventListener('click', async () => {
       await supabase.auth.signOut();
       window.location.href = 'index.html';
     });
     const id = getIdFromUrl();
-    if (id) loadProject(id);
-    else window.location.href = 'dashboard.html';
+    if (id) {
+      loadProject(id);
+      loadExpensesForProject(id);
+      loadIncomesForProject(id);
+    } else window.location.href = 'dashboard.html';
   </script>
 </body>
 </html>
