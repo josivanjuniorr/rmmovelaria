@@ -342,9 +342,26 @@
           </div>
           <div class="info"><strong>Valor a receber:</strong> R$${p.valorAReceber.toFixed(2)}</div>
           ${prazoMsg}
+          <button class="btn-entregar" style="margin-top:10px;" data-id="${p.id}">Entregar Projeto</button>
         `;
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (e) => {
+          // Evita conflito com botão entregar
+          if (e.target.classList.contains('btn-entregar')) return;
           window.location.href = `projeto.html?id=${p.id}`;
+        });
+        // Botão entregar projeto
+        card.querySelector('.btn-entregar').addEventListener('click', async (e) => {
+          e.stopPropagation();
+          // Pergunta se está totalmente pago
+          const isPaid = p.valorAReceber <= 0;
+          let confirmMsg = isPaid
+            ? 'O projeto está totalmente pago. Deseja marcar como entregue?'
+            : 'O projeto NÃO está totalmente pago. Deseja marcar como pagamento pendente?';
+          if (confirm(confirmMsg)) {
+            const novoStatus = isPaid ? 'entregue' : 'pagamento';
+            await supabase.from('projetos').update({ status: novoStatus }).eq('id', p.id);
+            loadProjects();
+          }
         });
         container.appendChild(card);
       });
