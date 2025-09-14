@@ -38,6 +38,17 @@
 
     <div id="pagination" class="pagination"></div>
     <div id="cardsContainer" class="cards-container"></div>
+    <!-- Modal de confirmação de entrega -->
+    <div id="modalConfirmEntrega" class="modal" style="display:none;">
+      <div class="modal-content" style="max-width:350px;">
+        <h3 id="modalEntregaTitulo">Confirmar entrega</h3>
+        <p id="modalEntregaMsg"></p>
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+          <button id="btnEntregaSim" class="btn-primary">Sim</button>
+          <button id="btnEntregaNao" class="btn-secondary">Não</button>
+        </div>
+      </div>
+    </div>
   </div>
 
 
@@ -342,27 +353,51 @@
           </div>
           <div class="info"><strong>Valor a receber:</strong> R$${p.valorAReceber.toFixed(2)}</div>
           ${prazoMsg}
-          <button class="btn-entregar" style="margin-top:10px;" data-id="${p.id}">Entregar Projeto</button>
+          ${p.status === 'producao' ? `<button class='btn-entregar' style='margin-top:10px;' data-id='${p.id}'>Entregar Projeto</button>` : ''}
         `;
         card.addEventListener('click', (e) => {
           // Evita conflito com botão entregar
           if (e.target.classList.contains('btn-entregar')) return;
           window.location.href = `projeto.html?id=${p.id}`;
         });
-        // Botão entregar projeto
-        card.querySelector('.btn-entregar').addEventListener('click', async (e) => {
-          e.stopPropagation();
-          // Pergunta se está totalmente pago
-          const isPaid = p.valorAReceber <= 0;
-          let confirmMsg = isPaid
-            ? 'O projeto está totalmente pago. Deseja marcar como entregue?'
-            : 'O projeto NÃO está totalmente pago. Deseja marcar como pagamento pendente?';
-          if (confirm(confirmMsg)) {
-            const novoStatus = isPaid ? 'entregue' : 'pagamento';
-            await supabase.from('projetos').update({ status: novoStatus }).eq('id', p.id);
-            loadProjects();
-          }
-        });
+        // Botão entregar projeto só se status for producao
+        if (p.status === 'producao') {
+          card.querySelector('.btn-entregar').addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Modal customizado de confirmação
+            const isPaid = p.valorAReceber <= 0;
+            const modal = document.getElementById('modalConfirmEntrega');
+            const msg = document.getElementById('modalEntregaMsg');
+            const titulo = document.getElementById('modalEntregaTitulo');
+            titulo.textContent = 'Confirmar entrega';
+            msg.textContent = isPaid
+              ? 'O projeto está totalmente pago. Deseja marcar como entregue?'
+              : 'O projeto NÃO está totalmente pago. Deseja marcar como pagamento pendente?';
+            modal.style.display = 'flex';
+            // Salva id e status temporário
+            modal.dataset.projetoId = p.id;
+            modal.dataset.novoStatus = isPaid ? 'entregue' : 'pagamento';
+          });
+    // Modal confirmação entrega
+    const modalEntrega = document.getElementById('modalConfirmEntrega');
+    const btnEntregaSim = document.getElementById('btnEntregaSim');
+    const btnEntregaNao = document.getElementById('btnEntregaNao');
+    btnEntregaSim.addEventListener('click', async () => {
+      const id = modalEntrega.dataset.projetoId;
+      const novoStatus = modalEntrega.dataset.novoStatus;
+      if (id && novoStatus) {
+        await supabase.from('projetos').update({ status: novoStatus }).eq('id', id);
+        modalEntrega.style.display = 'none';
+        loadProjects();
+      }
+    });
+    btnEntregaNao.addEventListener('click', () => {
+      modalEntrega.style.display = 'none';
+    });
+    modalEntrega.addEventListener('click', (e) => {
+      if (e.target === modalEntrega) modalEntrega.style.display = 'none';
+    });
+        }
         container.appendChild(card);
       });
 
