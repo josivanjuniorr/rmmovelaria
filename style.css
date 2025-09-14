@@ -107,11 +107,10 @@ button:hover {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background: rgba(0,0,0,0.5);
-  z-index: 2000;
-  touch-action: none;
+  z-index: 900; /* abaixo do modal, acima do conteúdo */
 }
 
 /* Modal do projeto */
@@ -131,7 +130,7 @@ button:hover {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  z-index: 3000;
+  z-index: 1000;
   font-family: 'Inter', sans-serif;
 }
 
@@ -148,23 +147,22 @@ button:hover {
   flex: 1;
   min-height: 0;
   max-height: 60vh;
-  -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 600px) {
   #projectForm {
-    width: 100vw;
-    max-width: 100vw;
-    height: 100vh;
-    max-height: 100vh;
-    padding: 0;
-    border-radius: 0;
-    top: 0;
-    left: 0;
+    width: 98vw;
+    max-width: 98vw;
+    height: 98vh;
+    max-height: 98vh;
+    padding: 8px 0 0 0;
+    border-radius: 12px;
+    top: 1vh;
+    left: 1vw;
     transform: none;
     display: flex;
     flex-direction: column;
-    z-index: 3000;
+    box-sizing: border-box;
   }
   #projectForm .form-scroll {
     padding: 18px 8px;
