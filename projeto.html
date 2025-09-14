@@ -236,7 +236,15 @@
             <br><small>${r.data || ''}</small>
           </div>
           <span class="value">R$${r.valor.toFixed(2)}</span>
+          <button class="delete-income-btn" style="margin-left:10px;background:#f44336;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;">Excluir</button>
         `;
+        item.querySelector('.delete-income-btn').addEventListener('click', async (ev) => {
+          ev.stopPropagation();
+          if (confirm('Deseja excluir esta receita?')) {
+            await supabase.from('receitas').delete().eq('id', r.id);
+            loadIncomesForProject(getIdFromUrl());
+          }
+        });
         list.appendChild(item);
       });
     }
