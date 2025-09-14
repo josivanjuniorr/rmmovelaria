@@ -256,12 +256,12 @@ body {
   text-decoration: none;
   padding: 8px 12px;
   border-radius: 5px;
-  background: #011142;
+  background: #4169E1;
   transition: background 0.3s;
 }
 
 .sidebar a:hover {
-  background: #4169E1;
+  background: #3055b0;
 }
 
 /* Área principal */
