@@ -128,12 +128,24 @@
         prazo: document.getElementById('deadline').value,
         valor_total: Number(document.getElementById('total').value),
       };
-      const { error } = await supabase.from('projetos').update(projectData).eq('id', id);
-      if (!error) {
-        alert('Projeto salvo com sucesso!');
-        window.location.href = 'dashboard.html';
+      if (id) {
+        // Editar projeto existente
+        const { error } = await supabase.from('projetos').update(projectData).eq('id', id);
+        if (!error) {
+          alert('Projeto salvo com sucesso!');
+          window.location.href = 'dashboard.html';
+        } else {
+          alert('Erro ao salvar projeto: ' + error.message);
+        }
       } else {
-        alert('Erro ao salvar projeto: ' + error.message);
+        // Criar novo projeto
+        const { error } = await supabase.from('projetos').insert([projectData]);
+        if (!error) {
+          alert('Projeto criado com sucesso!');
+          window.location.href = 'dashboard.html';
+        } else {
+          alert('Erro ao criar projeto: ' + error.message);
+        }
       }
     }
     // Funções para despesas e receitas (reaproveitando do dashboard)
@@ -297,7 +309,22 @@
       loadProject(id);
       loadExpensesForProject(id);
       loadIncomesForProject(id);
-    } else window.location.href = 'dashboard.html';
+    } else {
+      // Modo de novo projeto: limpa campos e desabilita despesas/receitas
+      document.getElementById('projectTitle').textContent = 'Novo Projeto';
+      document.getElementById('title').value = '';
+      document.getElementById('client').value = '';
+      document.getElementById('description').value = '';
+      document.getElementById('status').value = 'producao';
+      document.getElementById('deadline').value = '';
+      document.getElementById('total').value = '';
+      document.querySelector('.form-section .expense-form').style.display = 'none';
+      document.getElementById('projectExpensesList').innerHTML = '';
+      document.getElementById('totalDespesas').textContent = '';
+      document.querySelector('.form-section .income-form').style.display = 'none';
+      document.getElementById('projectIncomesList').innerHTML = '';
+      document.getElementById('totalReceitas').textContent = '';
+    }
 
     // Expansão dos campos principais
     const toggleBtn = document.getElementById('toggleMainFields');
