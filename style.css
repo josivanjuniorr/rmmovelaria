@@ -170,6 +170,8 @@
 #projectFormPage button.save-btn {
   background: #4169E1;
   color: #fff;
+  min-width: 120px;
+  text-align: center;
 }
 
 #projectFormPage button.save-btn:hover {
