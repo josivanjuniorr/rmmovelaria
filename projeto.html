@@ -7,7 +7,8 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="sidebar">
+  <button id="btn-toggle-sidebar" style="position:fixed;top:10px;left:10px;z-index:999;background:#4169E1;color:#fff;border-radius:8px;padding:8px 12px;font-size:16px;">☰</button>
+  <div class="sidebar" id="sidebar">
     <h1>RA Movelaria</h1>
     <a href="dashboard.html">Dashboard</a>
     <a href="clientes.html">Clientes</a>
@@ -76,6 +77,20 @@
     </div>
   </div>
   <script type="module">
+    // Alterna visibilidade da sidebar
+    const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+    const sidebar = document.getElementById('sidebar');
+    let sidebarVisible = true;
+    btnToggleSidebar.addEventListener('click', () => {
+      sidebarVisible = !sidebarVisible;
+      if (sidebarVisible) {
+        sidebar.style.display = '';
+        btnToggleSidebar.textContent = '☰';
+      } else {
+        sidebar.style.display = 'none';
+        btnToggleSidebar.textContent = '⮞';
+      }
+    });
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
     const supabase = createClient(
       'https://oncnehknyafxttztjteu.supabase.co',
