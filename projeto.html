@@ -14,27 +14,25 @@
     <a href="financeiro.html">Financeiro</a>
     <a href="#" id="btn-logout">Sair</a>
   </div>
-  <div class="main">
-    <h2 id="projectTitle">Projeto</h2>
-    <div id="projectScrollContainer" style="max-width:700px;margin:auto;max-height:90vh;overflow-y:auto;">
-      <form id="projectFormPage" class="form-scroll">
+  <div class="sidebar">
+    <h1>RA Movelaria</h1>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="clientes.html">Clientes</a>
+    <a href="financeiro.html">Financeiro</a>
+    <a href="#" id="btn-logout">Sair</a>
+  </div>
+  <h2 id="projectTitle" style="margin-left:240px;margin-top:30px;">Projeto</h2>
+  <div id="projectScrollContainer">
+    <form id="projectFormPage" class="form-scroll">
       <div class="form-flex-container">
-        <div class="form-section">
-          <label for="title">Título</label>
-          <input type="text" id="title" required />
-          <label for="client">Cliente</label>
-          <input type="text" id="client" required />
-          <label for="description">Descrição</label>
-          <textarea id="description"></textarea>
-          <label for="status">Status</label>
-          <select id="status" class="custom-select">
-            <option value="producao">Produção</option>
-            <option value="entregue">Entregue</option>
-            <option value="pagamento">Pagamento pendente</option>
-          </select>
-          <label for="deadline">Prazo</label>
-          <input type="date" id="deadline" />
-          <label for="total">Valor Total (R$)</label>
+        ...existing code...
+      </div>
+      <div class="modal-actions" style="margin-top:24px;">
+        <button type="submit" class="save-btn">Salvar</button>
+        <a href="dashboard.html" class="cancel-btn" style="text-align:center;display:inline-block;padding:8px 16px;">Cancelar</a>
+      </div>
+    </form>
+  </div>
           <input type="number" id="total" />
         </div>
         <div class="form-section">
