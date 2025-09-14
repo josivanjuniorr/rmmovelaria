@@ -323,6 +323,9 @@
       document.querySelector('.form-section .income-form').style.display = 'none';
       document.getElementById('projectIncomesList').innerHTML = '';
       document.getElementById('totalReceitas').textContent = '';
+      // Remover títulos de despesas e receitas
+      document.querySelector('.form-section h4').style.display = 'none';
+      document.querySelectorAll('.form-section h4')[1].style.display = 'none';
     }
 
     // Removida a expansão dos campos principais
