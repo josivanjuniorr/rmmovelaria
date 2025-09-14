@@ -168,8 +168,17 @@
 }
 
 #projectFormPage button.save-btn {
-  background: #4169E1;
+  background: #dc3545;
   color: #fff;
+  border-radius: 8px;
+  padding: 8px 16px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.3s, transform 0.2s;
+  display: inline-block;
+  font-size: 16px;
+  border: none;
+  box-sizing: border-box;
   min-width: 120px;
   text-align: center;
 }
