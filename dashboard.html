@@ -116,7 +116,10 @@
 
   <!-- JavaScript -->
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  // Garante que o formulário do projeto sempre comece oculto
+  document.getElementById('projectForm').style.display = 'none';
 
     const supabase = createClient(
       'https://oncnehknyafxttztjteu.supabase.co',
