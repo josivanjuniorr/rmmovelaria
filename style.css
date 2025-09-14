@@ -125,7 +125,9 @@ button:hover {
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.15);
   width: 80%;
-  max-width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
   z-index: 1000;
   font-family: 'Inter', sans-serif;
 }
@@ -136,6 +138,34 @@ button:hover {
   font-size: 22px;
   color: #0a1a3d;
   text-align: center;
+}
+
+@media (max-width: 600px) {
+  #projectForm {
+    width: 95vw;
+    max-width: 95vw;
+    padding: 18px 8px;
+    border-radius: 10px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  #projectForm .form-flex-container {
+    flex-direction: column;
+    gap: 0;
+  }
+  #projectForm input,
+  #projectForm textarea,
+  #projectForm select {
+    font-size: 16px;
+    padding: 10px 8px;
+    margin-bottom: 12px;
+  }
+  #projectForm .modal-actions {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
 }
 
 /* Campos do formulário */
