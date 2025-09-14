@@ -1,3 +1,18 @@
+/* Ajuste específico para rolagem no iPhone/Safari */
+@media (max-width: 700px) {
+  #projectScrollContainer {
+    position: static !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow-y: scroll !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    background: #fff;
+    box-sizing: border-box;
+    padding-bottom: 12px;
+  }
+}
 /* Força rolagem mobile absoluta para o container do projeto */
 @media (max-width: 700px) {
   #projectScrollContainer {
