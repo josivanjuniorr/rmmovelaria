@@ -180,7 +180,7 @@
   transform: translateY(-2px);
 }
 
-#projectFormPage a.cancel-btn {
+#projectFormPage button.cancel-btn {
   background: #dc3545;
   color: #fff;
   border-radius: 8px;
@@ -196,7 +196,7 @@
   text-align: center;
 }
 
-#projectFormPage a.cancel-btn:hover {
+#projectFormPage button.cancel-btn:hover {
   background: #b71c1c;
   transform: translateY(-2px);
 }
