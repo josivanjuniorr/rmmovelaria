@@ -58,56 +58,55 @@
 
   <div id="projectForm">
     <h3>Projeto</h3>
-    <div class="expense-row">
-      <input type="text" id="title" placeholder="Título do Projeto" />
-      <input type="text" id="client" placeholder="Cliente" />
-    </div>
-    <div class="expense-row">
-      <textarea id="description" placeholder="Descrição"></textarea>
-      <select id="status" class="custom-select">
-        <option value="producao">Produção</option>
-        <option value="entregue">Entregue</option>
-        <option value="pagamento">Pagamento pendente</option>
-      </select>
-    </div>
-    <div class="expense-row">
-      <input type="date" id="deadline" />
-      <input type="number" id="total" placeholder="Valor Total (R$)" />
-    </div>
-    
-    <div class="form-flex-container">
-      <!-- Despesas -->
-      <div class="form-section">
-        <h4>Despesas do Projeto</h4>
-        <div class="expense-form">
-          <input type="text" id="expenseDesc" placeholder="Descrição da Despesa" />
-          <input type="number" id="expenseValue" placeholder="Valor (R$)" />
-          <div class="expense-row">
-            <select id="expenseCategory" class="custom-select">
-              <option value="material">Material</option>
-              <option value="frete">Frete</option>
-              <option value="serviços">Serviços</option>
-            </select>
-            <input type="date" id="expenseDate" />
+    <div class="form-scroll">
+      <div class="expense-row">
+        <input type="text" id="title" placeholder="Título do Projeto" />
+        <input type="text" id="client" placeholder="Cliente" />
+      </div>
+      <div class="expense-row">
+        <textarea id="description" placeholder="Descrição"></textarea>
+        <select id="status" class="custom-select">
+          <option value="producao">Produção</option>
+          <option value="entregue">Entregue</option>
+          <option value="pagamento">Pagamento pendente</option>
+        </select>
+      </div>
+      <div class="expense-row">
+        <input type="date" id="deadline" />
+        <input type="number" id="total" placeholder="Valor Total (R$)" />
+      </div>
+      <div class="form-flex-container">
+        <!-- Despesas -->
+        <div class="form-section">
+          <h4>Despesas do Projeto</h4>
+          <div class="expense-form">
+            <input type="text" id="expenseDesc" placeholder="Descrição da Despesa" />
+            <input type="number" id="expenseValue" placeholder="Valor (R$)" />
+            <div class="expense-row">
+              <select id="expenseCategory" class="custom-select">
+                <option value="material">Material</option>
+                <option value="frete">Frete</option>
+                <option value="serviços">Serviços</option>
+              </select>
+              <input type="date" id="expenseDate" />
+            </div>
+            <button id="btn-add-expense">Adicionar Despesa</button>
           </div>
-          <button id="btn-add-expense">Adicionar Despesa</button>
+          <ul id="projectExpensesList" class="expenses-list"></ul>
         </div>
-        <ul id="projectExpensesList" class="expenses-list"></ul>
-      </div>
-
-      <!-- Receitas -->
-      <div class="form-section">
-        <h4>Receitas do Projeto</h4>
-        <div class="income-form">
-          <input type="text" id="incomeDesc" placeholder="Descrição do pagamento" />
-          <input type="number" id="incomeValue" placeholder="Valor (R$)" />
-          <input type="date" id="incomeDate" />
-          <button id="btn-add-income">Adicionar Receita</button>
+        <!-- Receitas -->
+        <div class="form-section">
+          <h4>Receitas do Projeto</h4>
+          <div class="income-form">
+            <input type="text" id="incomeDesc" placeholder="Descrição do pagamento" />
+            <input type="number" id="incomeValue" placeholder="Valor (R$)" />
+            <input type="date" id="incomeDate" />
+            <button id="btn-add-income">Adicionar Receita</button>
+          </div>
+          <ul id="projectIncomesList" class="incomes-list"></ul>
         </div>
-        <ul id="projectIncomesList" class="incomes-list"></ul>
       </div>
     </div>
-
     <div class="modal-actions">
       <button class="save-btn" id="btn-save">Salvar</button>
       <button class="cancel-btn" id="btn-cancel">Cancelar</button>

@@ -141,11 +141,12 @@ button:hover {
   color: #0a1a3d;
   text-align: center;
 
+
 #projectForm .form-scroll {
   overflow-y: auto;
   flex: 1;
   min-height: 0;
-}
+  max-height: 60vh;
 }
 
 @media (max-width: 600px) {
@@ -159,10 +160,15 @@ button:hover {
     top: 0;
     left: 0;
     transform: none;
+    display: flex;
+    flex-direction: column;
   }
   #projectForm .form-scroll {
     padding: 18px 8px;
-    max-height: calc(100vh - 60px);
+    flex: 1;
+    min-height: 0;
+    max-height: 100%;
+    overflow-y: auto;
   }
   #projectForm .form-flex-container {
     flex-direction: column;
