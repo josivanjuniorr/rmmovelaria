@@ -58,17 +58,23 @@
 
   <div id="projectForm">
     <h3>Projeto</h3>
-    <input type="text" id="title" placeholder="Título do Projeto" />
-    <input type="text" id="client" placeholder="Cliente" />
-    <textarea id="description" placeholder="Descrição"></textarea>
-    <select id="status" class="custom-select">
-      <option value="producao">Produção</option>
-      <option value="entregue">Entregue</option>
-      <option value="pagamento">Pagamento pendente</option>
-    </select>
-    <input type="date" id="deadline" />
-    <input type="number" id="total" placeholder="Valor Total (R$)" />
-
+    <div class="expense-row">
+      <input type="text" id="title" placeholder="Título do Projeto" />
+      <input type="text" id="client" placeholder="Cliente" />
+    </div>
+    <div class="expense-row">
+      <textarea id="description" placeholder="Descrição"></textarea>
+      <select id="status" class="custom-select">
+        <option value="producao">Produção</option>
+        <option value="entregue">Entregue</option>
+        <option value="pagamento">Pagamento pendente</option>
+      </select>
+    </div>
+    <div class="expense-row">
+      <input type="date" id="deadline" />
+      <input type="number" id="total" placeholder="Valor Total (R$)" />
+    </div>
+    
     <div class="form-flex-container">
       <!-- Despesas -->
       <div class="form-section">
