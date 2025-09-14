@@ -21,8 +21,7 @@
       <form id="projectFormPage" class="form-scroll" style="overflow-y: scroll;">
       <div class="form-flex-container">
         <div class="form-section">
-          <button type="button" id="toggleMainFields" style="width:100%;margin-bottom:10px;background:#4169E1;color:#fff;border-radius:8px;padding:10px 0;font-size:16px;">Exibir dados principais ▼</button>
-          <div id="mainFields" style="display:none;">
+          <div id="mainFields">
             <label for="title">Título</label>
             <input type="text" id="title" required />
             <label for="client">Cliente</label>
@@ -318,28 +317,9 @@
       document.getElementById('status').value = 'producao';
       document.getElementById('deadline').value = '';
       document.getElementById('total').value = '';
-      document.querySelector('.form-section .expense-form').style.display = 'none';
-      document.getElementById('projectExpensesList').innerHTML = '';
-      document.getElementById('totalDespesas').textContent = '';
-      document.querySelector('.form-section .income-form').style.display = 'none';
-      document.getElementById('projectIncomesList').innerHTML = '';
-      document.getElementById('totalReceitas').textContent = '';
     }
 
-    // Expansão dos campos principais
-    const toggleBtn = document.getElementById('toggleMainFields');
-    const mainFields = document.getElementById('mainFields');
-    let expanded = false;
-    toggleBtn.addEventListener('click', () => {
-      expanded = !expanded;
-      if (expanded) {
-        mainFields.style.display = 'block';
-        toggleBtn.textContent = 'Esconder dados principais ▲';
-      } else {
-        mainFields.style.display = 'none';
-        toggleBtn.textContent = 'Exibir dados principais ▼';
-      }
-    });
+    // Removida a expansão dos campos principais
   </script>
 </body>
 </html>
