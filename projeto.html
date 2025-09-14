@@ -167,7 +167,15 @@
             <br><small>${formattedDate}</small>
           </div>
           <span class="value">R$${e.valor.toFixed(2)}</span>
+          <button class="delete-expense-btn" style="margin-left:10px;background:#f44336;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;">Excluir</button>
         `;
+        item.querySelector('.delete-expense-btn').addEventListener('click', async (ev) => {
+          ev.stopPropagation();
+          if (confirm('Deseja excluir esta despesa?')) {
+            await supabase.from('despesas').delete().eq('id', e.id);
+            loadExpensesForProject(getIdFromUrl());
+          }
+        });
         list.appendChild(item);
       });
     }
