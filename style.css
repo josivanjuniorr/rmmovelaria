@@ -140,7 +140,7 @@ button:hover {
   font-size: 22px;
   color: #0a1a3d;
   text-align: center;
-
+}
 
 #projectForm .form-scroll {
   overflow-y: auto;
@@ -847,5 +847,4 @@ tbody tr:hover {
   flex: 1; /* faz cada elemento ocupar espaço igual */
   padding: 5px;
   font-size: 14px;
-}
 }
