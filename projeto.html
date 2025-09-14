@@ -57,6 +57,7 @@
             <button id="btn-add-expense" type="button">Adicionar Despesa</button>
           </div>
           <ul id="projectExpensesList" class="expenses-list"></ul>
+  <div id="totalDespesas" style="margin-top:8px;font-weight:bold;color:#dc3545;"></div>
         </div>
         <div class="form-section">
           <h4>Receitas do Projeto</h4>
@@ -67,6 +68,7 @@
             <button id="btn-add-income" type="button">Adicionar Receita</button>
           </div>
           <ul id="projectIncomesList" class="incomes-list"></ul>
+  <div id="totalReceitas" style="margin-top:8px;font-weight:bold;color:#28a745;"></div>
         </div>
       </div>
       <div class="modal-actions" style="margin-top:24px;">
@@ -155,9 +157,12 @@
       list.innerHTML = '';
       if (projectExpenses.length === 0) {
         list.innerHTML = '<li style="text-align:center; color:#888;">Nenhuma despesa adicionada</li>';
+        document.getElementById('totalDespesas').textContent = '';
         return;
       }
+      let total = 0;
       projectExpenses.forEach((e) => {
+        total += Number(e.valor);
         const item = document.createElement('li');
         const formattedDate = e.data ? new Date(e.data).toLocaleDateString() : '';
         item.innerHTML = `
@@ -178,6 +183,7 @@
         });
         list.appendChild(item);
       });
+      document.getElementById('totalDespesas').textContent = `Total de despesas: R$${total.toFixed(2)}`;
     }
 
     async function addExpenseToProject() {
@@ -228,7 +234,9 @@
         list.innerHTML = '<li style="text-align:center; color:#888;">Nenhuma receita adicionada</li>';
         return;
       }
+      let total = 0;
       projectIncomes.forEach((r) => {
+        total += Number(r.valor);
         const item = document.createElement('li');
         item.innerHTML = `
           <div>
@@ -247,6 +255,7 @@
         });
         list.appendChild(item);
       });
+      document.getElementById('totalReceitas').textContent = `Total de receitas: R$${total.toFixed(2)}`;
     }
 
     async function addIncomeToProject() {
