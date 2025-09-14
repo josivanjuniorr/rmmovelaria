@@ -40,86 +40,11 @@
     <div id="cardsContainer" class="cards-container"></div>
   </div>
 
-  <!-- Modal de confirmação de entrega -->
-  <div id="deliverModal" class="modal">
-    <div class="modal-content">
-      <h3>Entregar Projeto</h3>
-      <p>O projeto foi totalmente pago?</p>
-      <div class="modal-actions">
-        <button id="btn-deliver-yes" class="save-btn">Sim</button>
-        <button id="btn-deliver-no" class="cancel-btn">Não</button>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- Overlay e Modal -->
-  <div id="overlay"></div>
-
-  <div id="projectForm">
-    <h3>Projeto</h3>
-    <div class="form-scroll">
-      <div class="expense-row">
-        <input type="text" id="title" placeholder="Título do Projeto" />
-        <input type="text" id="client" placeholder="Cliente" />
-      </div>
-      <div class="expense-row">
-        <textarea id="description" placeholder="Descrição"></textarea>
-        <select id="status" class="custom-select">
-          <option value="producao">Produção</option>
-          <option value="entregue">Entregue</option>
-          <option value="pagamento">Pagamento pendente</option>
-        </select>
-      </div>
-      <div class="expense-row">
-        <input type="date" id="deadline" />
-        <input type="number" id="total" placeholder="Valor Total (R$)" />
-      </div>
-      <div class="form-flex-container">
-        <!-- Despesas -->
-        <div class="form-section">
-          <h4>Despesas do Projeto</h4>
-          <div class="expense-form">
-            <input type="text" id="expenseDesc" placeholder="Descrição da Despesa" />
-            <input type="number" id="expenseValue" placeholder="Valor (R$)" />
-            <div class="expense-row">
-              <select id="expenseCategory" class="custom-select">
-                <option value="material">Material</option>
-                <option value="frete">Frete</option>
-                <option value="serviços">Serviços</option>
-              </select>
-              <input type="date" id="expenseDate" />
-            </div>
-            <button id="btn-add-expense">Adicionar Despesa</button>
-          </div>
-          <ul id="projectExpensesList" class="expenses-list"></ul>
-        </div>
-        <!-- Receitas -->
-        <div class="form-section">
-          <h4>Receitas do Projeto</h4>
-          <div class="income-form">
-            <input type="text" id="incomeDesc" placeholder="Descrição do pagamento" />
-            <input type="number" id="incomeValue" placeholder="Valor (R$)" />
-            <input type="date" id="incomeDate" />
-            <button id="btn-add-income">Adicionar Receita</button>
-          </div>
-          <ul id="projectIncomesList" class="incomes-list"></ul>
-        </div>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="save-btn" id="btn-save">Salvar</button>
-      <button class="cancel-btn" id="btn-cancel">Cancelar</button>
-    </div>
-  </div>
 
 
   <!-- JavaScript -->
   <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-  // Garante que o formulário do projeto sempre comece oculto
-  document.getElementById('projectForm').style.display = 'none';
 
     const supabase = createClient(
       'https://oncnehknyafxttztjteu.supabase.co',
@@ -443,13 +368,11 @@
       pageItems.forEach((p) => {
         const card = document.createElement('div');
         card.className = 'project-card';
-
         let formattedDate = '';
         if (p.prazo) {
           const d = new Date(p.prazo);
           formattedDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2,'0')}/${d.getFullYear()}`;
         }
-
         let prazoMsg = '';
         if (p.status === 'producao' && p.daysLeft !== null) {
           if (p.daysLeft < 0) {
@@ -458,14 +381,12 @@
             prazoMsg = `<span class="warning warning-yellow">Faltam ${p.daysLeft} dias para o prazo.</span>`;
           }
         }
-
         const statusClass =
           p.status === 'producao'
             ? 'status-badge status-producao'
             : p.status === 'entregue'
             ? 'status-badge status-entregue'
             : 'status-badge status-pagamento';
-
         card.innerHTML = `
           <div class="card-header">
             <h4>${p.titulo}</h4>
@@ -482,20 +403,9 @@
           <div class="info"><strong>Valor a receber:</strong> R$${p.valorAReceber.toFixed(2)}</div>
           ${prazoMsg}
         `;
-
-        if (p.status === 'producao') {
-          const deliverBtn = document.createElement('button');
-          deliverBtn.textContent = 'Entregar Projeto';
-          deliverBtn.className = 'deliver-btn';
-          deliverBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            currentProjectId = p.id;
-            deliverModal.style.display = 'flex';
-          });
-          card.appendChild(deliverBtn);
-        }
-
-        card.addEventListener('click', () => openForm(p));
+        card.addEventListener('click', () => {
+          window.location.href = `projeto.html?id=${p.id}`;
+        });
         container.appendChild(card);
       });
 
@@ -585,12 +495,10 @@
     }
 
     // Eventos
-    document.getElementById('btn-new-project').addEventListener('click', () => openForm());
-    document.getElementById('btn-cancel').addEventListener('click', closeForm);
-    document.getElementById('btn-save').addEventListener('click', saveProject);
+    document.getElementById('btn-new-project').addEventListener('click', () => {
+      window.location.href = 'projeto.html';
+    });
     document.getElementById('btn-logout').addEventListener('click', logout);
-    document.getElementById('btn-add-expense').addEventListener('click', addExpenseToProject);
-    overlay.addEventListener('click', closeForm);
 
     checkAuth();
   </script>

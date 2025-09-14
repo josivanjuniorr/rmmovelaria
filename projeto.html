@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Projeto - Movelaria</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="sidebar">
+    <h1>RA Movelaria</h1>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="clientes.html">Clientes</a>
+    <a href="financeiro.html">Financeiro</a>
+    <a href="#" id="btn-logout">Sair</a>
+  </div>
+  <div class="main">
+    <h2 id="projectTitle">Projeto</h2>
+    <form id="projectFormPage" style="max-width:600px;margin:auto;">
+      <div class="form-section">
+        <label for="title">Título</label>
+        <input type="text" id="title" required />
+      </div>
+      <div class="form-section">
+        <label for="client">Cliente</label>
+        <input type="text" id="client" required />
+      </div>
+      <div class="form-section">
+        <label for="description">Descrição</label>
+        <textarea id="description"></textarea>
+      </div>
+      <div class="form-section">
+        <label for="status">Status</label>
+        <select id="status">
+          <option value="producao">Produção</option>
+          <option value="entregue">Entregue</option>
+          <option value="pagamento">Pagamento pendente</option>
+        </select>
+      </div>
+      <div class="form-section">
+        <label for="deadline">Prazo</label>
+        <input type="date" id="deadline" />
+      </div>
+      <div class="form-section">
+        <label for="total">Valor Total (R$)</label>
+        <input type="number" id="total" />
+      </div>
+      <div class="modal-actions" style="margin-top:24px;">
+        <button type="submit" class="save-btn">Salvar</button>
+        <a href="dashboard.html" class="cancel-btn" style="text-align:center;display:inline-block;padding:8px 16px;">Cancelar</a>
+      </div>
+    </form>
+  </div>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabase = createClient(
+      'https://oncnehknyafxttztjteu.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uY25laGtueWFmeHR0enRqdGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MjIzMjEsImV4cCI6MjA3MzI5ODMyMX0.qtqZAi48XqokjQOSn6hFcgVZZRlBk9UcFLeUJjTcA98'
+    );
+    function getIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+    async function loadProject(id) {
+      const { data, error } = await supabase.from('projetos').select('*').eq('id', id).single();
+      if (data) {
+        document.getElementById('projectTitle').textContent = `Projeto: ${data.titulo}`;
+        document.getElementById('title').value = data.titulo || '';
+        document.getElementById('client').value = data.cliente || '';
+        document.getElementById('description').value = data.descricao || '';
+        document.getElementById('status').value = data.status || 'producao';
+        document.getElementById('deadline').value = data.prazo || '';
+        document.getElementById('total').value = data.valor_total || '';
+      } else {
+        alert('Projeto não encontrado!');
+        window.location.href = 'dashboard.html';
+      }
+    }
+    async function saveProject(e) {
+      e.preventDefault();
+      const id = getIdFromUrl();
+      const projectData = {
+        titulo: document.getElementById('title').value,
+        cliente: document.getElementById('client').value,
+        descricao: document.getElementById('description').value,
+        status: document.getElementById('status').value,
+        prazo: document.getElementById('deadline').value,
+        valor_total: Number(document.getElementById('total').value),
+      };
+      const { error } = await supabase.from('projetos').update(projectData).eq('id', id);
+      if (!error) {
+        alert('Projeto salvo com sucesso!');
+        window.location.href = 'dashboard.html';
+      } else {
+        alert('Erro ao salvar projeto: ' + error.message);
+      }
+    }
+    document.getElementById('projectFormPage').addEventListener('submit', saveProject);
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = 'index.html';
+    });
+    const id = getIdFromUrl();
+    if (id) loadProject(id);
+    else window.location.href = 'dashboard.html';
+  </script>
+</body>
+</html>
