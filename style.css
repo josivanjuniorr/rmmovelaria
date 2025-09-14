@@ -178,12 +178,13 @@
 }
 
 #projectFormPage button.cancel-btn {
-  background: #ccc;
-  color: #333;
+  background: #4169E1;
+  color: #fff;
 }
 
 #projectFormPage button.cancel-btn:hover {
-  background: #aaa;
+  background: #3055b0;
+  transform: translateY(-2px);
 }
 /* Reset básico */
 * {
