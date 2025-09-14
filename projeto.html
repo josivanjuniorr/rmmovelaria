@@ -317,6 +317,12 @@
       document.getElementById('status').value = 'producao';
       document.getElementById('deadline').value = '';
       document.getElementById('total').value = '';
+      document.querySelector('.form-section .expense-form').style.display = 'none';
+      document.getElementById('projectExpensesList').innerHTML = '';
+      document.getElementById('totalDespesas').textContent = '';
+      document.querySelector('.form-section .income-form').style.display = 'none';
+      document.getElementById('projectIncomesList').innerHTML = '';
+      document.getElementById('totalReceitas').textContent = '';
     }
 
     // Removida a expansão dos campos principais
