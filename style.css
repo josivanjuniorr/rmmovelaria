@@ -177,15 +177,22 @@
   transform: translateY(-2px);
 }
 
-#projectFormPage button.cancel-btn {
-  background: #4169E1;
+#projectFormPage a.cancel-btn {
+  background: #dc3545;
   color: #fff;
+  border-radius: 8px;
+  padding: 8px 16px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.3s, transform 0.2s;
+  display: inline-block;
 }
 
-#projectFormPage button.cancel-btn:hover {
-  background: #3055b0;
+#projectFormPage a.cancel-btn:hover {
+  background: #b71c1c;
   transform: translateY(-2px);
 }
+
 /* Reset básico */
 * {
   margin: 0;
