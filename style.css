@@ -126,7 +126,6 @@ button:hover {
   z-index: 1000;
   font-family: 'Inter', sans-serif;
   max-height: 90vh; /* ✅ limita altura para caber na tela */
-  overflow-y: auto; /* ✅ rolagem apenas no modal */
 }
 
 @media (max-width: 768px) {
