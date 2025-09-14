@@ -118,15 +118,7 @@
 
     // Funções do modal removidas
 
-    // Garante que os cards sejam renderizados após carregar os projetos
-    function renderCardsWrapper() {
-      if (Array.isArray(filteredProjects)) {
-        renderCards();
-      } else {
-        filteredProjects = [];
-        renderCards();
-      }
-    }
+
 
     // Chama o carregamento inicial dos projetos
     checkAuth();
