@@ -113,6 +113,8 @@
   filterMonthInput.value = `${year}-${month}`;
 
     async function loadFinanceData() {
+      // Busca projetos para exibir nome
+      const { data: projetos } = await supabase.from('projetos').select('id, titulo');
       const { data: despesas } = await supabase.from('despesas').select('*');
       const { data: receitas } = await supabase.from('receitas').select('*');
 
@@ -159,8 +161,10 @@
       incomesList.innerHTML = '';
       if (receitasFiltradas.length === 0) incomesList.innerHTML = '<li>Nenhuma receita</li>';
       receitasFiltradas.forEach(r => {
+        const projeto = r.projeto_id ? projetos.find(p => p.id === r.projeto_id) : null;
+        const projetoNome = projeto ? projeto.titulo : '—';
         const li = document.createElement('li');
-        li.textContent = `${r.data} | ${r.descricao} — R$${Number(r.valor).toFixed(2)}`;
+        li.innerHTML = `<strong>${r.data}</strong> | <span style="color:#28a745">${r.descricao}</span> — <b>R$${Number(r.valor).toFixed(2)}</b><br><small>Projeto: ${projetoNome}</small>`;
         incomesList.appendChild(li);
       });
 
@@ -169,8 +173,10 @@
       expensesList.innerHTML = '';
       if (despesasFiltradas.length === 0) expensesList.innerHTML = '<li>Nenhuma despesa</li>';
       despesasFiltradas.forEach(d => {
+        const projeto = d.projeto_id ? projetos.find(p => p.id === d.projeto_id) : null;
+        const projetoNome = projeto ? projeto.titulo : '—';
         const li = document.createElement('li');
-        li.textContent = `${d.data} | ${d.categoria} | ${d.descricao} — R$${Number(d.valor).toFixed(2)}`;
+        li.innerHTML = `<strong>${d.data}</strong> | <span style="color:#dc3545">${d.categoria}</span> | ${d.descricao} — <b>R$${Number(d.valor).toFixed(2)}</b><br><small>Projeto: ${projetoNome}</small>`;
         expensesList.appendChild(li);
       });
     }

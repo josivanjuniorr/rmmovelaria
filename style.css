@@ -1,3 +1,7 @@
+ .caixa-card {
+   border-left: 6px solid #ff9800;
+   color: #ff9800;
+ }
 /* Ajuste específico para rolagem no iPhone/Safari */
 @media (max-width: 700px) {
   #projectScrollContainer {
