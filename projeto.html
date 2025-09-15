@@ -78,6 +78,14 @@
     </div>
   </div>
   <script type="module">
+    // Verificação de usuário logado
+    import { supabase } from './supabaseClient.js';
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = 'index.html';
+      }
+    })();
     // Alterna visibilidade da sidebar
     const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
     const sidebar = document.getElementById('sidebar');
@@ -92,7 +100,6 @@
         btnToggleSidebar.textContent = '⮞';
       }
     });
-    import { supabase } from './supabaseClient.js';
     function getIdFromUrl() {
       const params = new URLSearchParams(window.location.search);
       return params.get('id');
