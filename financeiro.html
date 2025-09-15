@@ -29,6 +29,10 @@
         <h3>Saldo</h3>
         <p id="saldo">R$ 0,00</p>
       </div>
+      <div class="card caixa-card">
+        <h3>Caixa</h3>
+        <p id="caixa">R$ 0,00</p>
+      </div>
     </div>
 
     <!-- Botão e Lista -->
@@ -126,9 +130,29 @@
       const totalReceitas = receitasFiltradas.reduce((sum, r) => sum + Number(r.valor), 0);
       const saldo = totalReceitas - totalDespesas;
 
+      // Calcula caixa: saldo acumulado dos meses anteriores + saldo do mês atual
+      let caixa = saldo;
+      if (filterMonthInput.value) {
+        const [anoAtual, mesAtual] = filterMonthInput.value.split('-').map(Number);
+        // Soma saldo de todos os meses anteriores
+        let saldoAnterior = 0;
+        for (let ano = 2000; ano <= anoAtual; ano++) {
+          for (let mes = 1; mes <= (ano === anoAtual ? mesAtual - 1 : 12); mes++) {
+            const mesStr = String(mes).padStart(2, '0');
+            const filtro = `${ano}-${mesStr}`;
+            const receitasMes = receitas.filter(r => r.data?.startsWith(filtro));
+            const despesasMes = despesas.filter(d => d.data?.startsWith(filtro));
+            const saldoMes = receitasMes.reduce((sum, r) => sum + Number(r.valor), 0) - despesasMes.reduce((sum, d) => sum + Number(d.valor), 0);
+            saldoAnterior += saldoMes;
+          }
+        }
+        caixa += saldoAnterior;
+      }
+
       document.getElementById('totalReceitas').textContent = `R$ ${totalReceitas.toFixed(2)}`;
       document.getElementById('totalDespesas').textContent = `R$ ${totalDespesas.toFixed(2)}`;
       document.getElementById('saldo').textContent = `R$ ${saldo.toFixed(2)}`;
+      document.getElementById('caixa').textContent = `R$ ${caixa.toFixed(2)}`;
 
       // Renderiza receitas
       const incomesList = document.getElementById('incomesList');
