@@ -1,3 +1,4 @@
+<button id="btn-toggle-sidebar" style="position:fixed;top:10px;left:10px;z-index:999;background:#4169E1;color:#fff;border-radius:8px;padding:8px 12px;font-size:16px;">☰</button>
 <div class="sidebar">
   <h1>Movelaria</h1>
   <a href="dashboard.html">Dashboard</a>
@@ -5,3 +6,18 @@
   <a href="financeiro.html">Financeiro</a>
   <a href="#" id="btn-logout">Sair</a>
 </div>
+<script>
+  const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+  const sidebarDiv = document.querySelector('.sidebar');
+  let sidebarVisible = true;
+  btnToggleSidebar.addEventListener('click', () => {
+    sidebarVisible = !sidebarVisible;
+    if (sidebarVisible) {
+      sidebarDiv.style.display = '';
+      btnToggleSidebar.textContent = '☰';
+    } else {
+      sidebarDiv.style.display = 'none';
+      btnToggleSidebar.textContent = '⮞';
+    }
+  });
+</script>

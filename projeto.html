@@ -99,20 +99,6 @@
         window.location.href = 'index.html';
       }
     })();
-    // Alterna visibilidade da sidebar
-    const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
-    const sidebar = document.getElementById('sidebar');
-    let sidebarVisible = true;
-    btnToggleSidebar.addEventListener('click', () => {
-      sidebarVisible = !sidebarVisible;
-      if (sidebarVisible) {
-        sidebar.style.display = '';
-        btnToggleSidebar.textContent = '☰';
-      } else {
-        sidebar.style.display = 'none';
-        btnToggleSidebar.textContent = '⮞';
-      }
-    });
     function getIdFromUrl() {
       const params = new URLSearchParams(window.location.search);
       return params.get('id');
