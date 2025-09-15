@@ -1,10 +1,18 @@
 <button id="btn-toggle-sidebar" style="position:fixed;top:10px;left:10px;z-index:999;background:#4169E1;color:#fff;border-radius:8px;padding:8px 12px;font-size:16px;">☰</button>
 <div class="sidebar">
   <h1>Movelaria</h1>
-  <a href="dashboard.html">🏠 Dashboard</a>
-  <a href="#">👥 Clientes</a>
-  <a href="financeiro.html">💰 Financeiro</a>
-  <a href="#" id="btn-logout">🚪 Sair</a>
+  <a href="dashboard.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:8px;"><path d="M3 10.5V21h6v-5h6v5h6V10.5L12 3 3 10.5z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Dashboard
+  </a>
+  <a href="financeiro.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:8px;"><path d="M12 1v22M17 5H7a5 5 0 0 0 0 10h10a5 5 0 0 1 0 10H7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Financeiro
+  </a>
+  <a href="#" id="btn-logout">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:8px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 17l5-5-5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Sair
+  </a>
 </div>
 <script>
   const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
