@@ -64,15 +64,16 @@
         // Lógica do botão de esconder/exibir sidebar
         const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
         const sidebarDiv = document.querySelector('.sidebar');
-        let sidebarVisible = true;
+        const iconToggle = document.getElementById('icon-toggle');
+        let sidebarMinimized = false;
         btnToggleSidebar.addEventListener('click', () => {
-          sidebarVisible = !sidebarVisible;
-          if (sidebarVisible) {
-            sidebarDiv.style.display = '';
-            btnToggleSidebar.textContent = '☰';
+          sidebarMinimized = !sidebarMinimized;
+          if (sidebarMinimized) {
+            sidebarDiv.classList.add('minimized');
+            iconToggle.innerHTML = '<path d="M6 6l6 6 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
           } else {
-            sidebarDiv.style.display = 'none';
-            btnToggleSidebar.textContent = '⮞';
+            sidebarDiv.classList.remove('minimized');
+            iconToggle.innerHTML = '<path d="M6 12l6 6 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
           }
         });
       });
