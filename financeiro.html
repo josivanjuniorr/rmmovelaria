@@ -246,7 +246,7 @@
         return;
       }
 
-      await supabase.from('receitas').insert([
+      const { error } = await supabase.from('receitas').insert([
         {
           descricao: desc,
           valor,
@@ -254,6 +254,11 @@
           projeto_id: null
         }
       ]);
+
+      if (error) {
+        alert('Erro ao salvar receita: ' + error.message);
+        return;
+      }
 
       closeIncomeForm();
       loadFinanceData();
