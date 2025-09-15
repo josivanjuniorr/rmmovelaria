@@ -38,11 +38,18 @@
     <!-- Botão e Lista -->
     <h3>Receitas</h3>
     <button id="btn-new-income">Nova Receita</button>
-    <ul id="incomesList"></ul>
-
-    <h3>Despesas</h3>
-    <button id="btn-add-external-expense">Nova Despesa</button>
-    <ul id="expensesList"></ul>
+    <div class="cards-row">
+      <div>
+        <h3>Receitas</h3>
+        <button id="btn-new-income">Nova Receita</button>
+        <div id="incomesList" class="cards-list"></div>
+      </div>
+      <div>
+        <h3>Despesas</h3>
+        <button id="btn-add-external-expense">Nova Despesa</button>
+        <div id="expensesList" class="cards-list"></div>
+      </div>
+    </div>
 
     <!-- Overlay e Modal de Receita -->
     <div id="overlay"></div>
@@ -159,26 +166,48 @@
       // Renderiza receitas
       const incomesList = document.getElementById('incomesList');
       incomesList.innerHTML = '';
-      if (receitasFiltradas.length === 0) incomesList.innerHTML = '<li>Nenhuma receita</li>';
-      receitasFiltradas.forEach(r => {
-        const projeto = r.projeto_id ? projetos.find(p => p.id === r.projeto_id) : null;
-        const projetoNome = projeto ? projeto.titulo : '—';
-        const li = document.createElement('li');
-        li.innerHTML = `<strong>${r.data}</strong> | <span style="color:#28a745">${r.descricao}</span> — <b>R$${Number(r.valor).toFixed(2)}</b><br><small>Projeto: ${projetoNome}</small>`;
-        incomesList.appendChild(li);
-      });
+      if (receitasFiltradas.length === 0) {
+        incomesList.innerHTML = '<div class="card-item empty">Nenhuma receita</div>';
+      } else {
+        receitasFiltradas.forEach(r => {
+          const projeto = r.projeto_id ? projetos.find(p => p.id === r.projeto_id) : null;
+          const projetoNome = projeto ? projeto.titulo : '—';
+          const card = document.createElement('div');
+          card.className = 'card-item receita';
+          card.innerHTML = `
+            <div class="card-item-header">
+              <span class="card-item-date">${r.data}</span>
+              <span class="card-item-value">R$${Number(r.valor).toFixed(2)}</span>
+            </div>
+            <div class="card-item-desc">${r.descricao}</div>
+            <div class="card-item-projeto">Projeto: <b>${projetoNome}</b></div>
+          `;
+          incomesList.appendChild(card);
+        });
+      }
 
-      // Renderiza despesas
       const expensesList = document.getElementById('expensesList');
       expensesList.innerHTML = '';
-      if (despesasFiltradas.length === 0) expensesList.innerHTML = '<li>Nenhuma despesa</li>';
-      despesasFiltradas.forEach(d => {
-        const projeto = d.projeto_id ? projetos.find(p => p.id === d.projeto_id) : null;
-        const projetoNome = projeto ? projeto.titulo : '—';
-        const li = document.createElement('li');
-        li.innerHTML = `<strong>${d.data}</strong> | <span style="color:#dc3545">${d.categoria}</span> | ${d.descricao} — <b>R$${Number(d.valor).toFixed(2)}</b><br><small>Projeto: ${projetoNome}</small>`;
-        expensesList.appendChild(li);
-      });
+      if (despesasFiltradas.length === 0) {
+        expensesList.innerHTML = '<div class="card-item empty">Nenhuma despesa</div>';
+      } else {
+        despesasFiltradas.forEach(d => {
+          const projeto = d.projeto_id ? projetos.find(p => p.id === d.projeto_id) : null;
+          const projetoNome = projeto ? projeto.titulo : '—';
+          const card = document.createElement('div');
+          card.className = 'card-item despesa';
+          card.innerHTML = `
+            <div class="card-item-header">
+              <span class="card-item-date">${d.data}</span>
+              <span class="card-item-value">R$${Number(d.valor).toFixed(2)}</span>
+            </div>
+            <div class="card-item-desc">${d.categoria} | ${d.descricao}</div>
+            <div class="card-item-projeto">Projeto: <b>${projetoNome}</b></div>
+          `;
+          expensesList.appendChild(card);
+        });
+      }
+
     }
 
     // Mostrar modal de receita
