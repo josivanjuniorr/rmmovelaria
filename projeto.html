@@ -104,7 +104,7 @@
       return params.get('id');
     }
     async function loadProject(id) {
-      const { data, error } = await supabase.from('projetos').select('*').eq('id', String(id)).single();
+      const { data, error } = await supabase.from('projetos').select('*').eq('id', Number(id)).single();
       if (data) {
         document.getElementById('projectTitle').textContent = `Projeto: ${data.titulo}`;
         document.getElementById('title').value = data.titulo || '';
