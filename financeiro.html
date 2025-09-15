@@ -36,8 +36,6 @@
     </div>
 
     <!-- Botão e Lista -->
-    <h3>Receitas</h3>
-    <button id="btn-new-income">Nova Receita</button>
     <div class="cards-row">
       <div>
         <h3>Receitas</h3>
@@ -46,12 +44,12 @@
       </div>
       <div>
         <h3>Despesas</h3>
-        <button id="btn-add-external-expense">Nova Despesa</button>
+          <button id="btn-new-expense">Nova Despesa</button>
         <div id="expensesList" class="cards-list"></div>
       </div>
     </div>
 
-    <!-- Overlay e Modal de Receita -->
+    <!-- Overlay e Modais -->
     <div id="overlay"></div>
 
     <div id="incomeForm" class="modal">
@@ -62,6 +60,18 @@
       <div class="modal-actions">
         <button id="btn-save-income" class="save-btn">Salvar</button>
         <button id="btn-cancel-income" class="cancel-btn">Cancelar</button>
+      </div>
+    </div>
+
+    <div id="expenseForm" class="modal">
+      <h3>Nova Despesa</h3>
+      <input type="text" id="expenseDesc" placeholder="Descrição" />
+      <input type="text" id="expenseCat" placeholder="Categoria" />
+      <input type="number" id="expenseValue" placeholder="Valor (R$)" />
+      <input type="date" id="expenseDate" />
+      <div class="modal-actions">
+        <button id="btn-save-expense" class="save-btn">Salvar</button>
+        <button id="btn-cancel-expense" class="cancel-btn">Cancelar</button>
       </div>
     </div>
 
@@ -210,11 +220,19 @@
 
     }
 
+
     // Mostrar modal de receita
     document.getElementById('btn-new-income').addEventListener('click', () => {
       overlay.style.display = 'block';
       incomeForm.style.display = 'block';
       clearIncomeForm();
+    });
+
+    // Mostrar modal de despesa
+    document.getElementById('btn-new-expense').addEventListener('click', () => {
+      overlay.style.display = 'block';
+      expenseForm.style.display = 'block';
+      clearExpenseForm();
     });
 
     // Salvar receita
@@ -228,30 +246,71 @@
         return;
       }
 
-      await supabase.from('receitas').insert([{
-        descricao: desc,
-        valor,
-        data,
-        projeto_id: null
-      }]);
+      await supabase.from('receitas').insert([
+        {
+          descricao: desc,
+          valor,
+          data,
+          projeto_id: null
+        }
+      ]);
 
       closeIncomeForm();
       loadFinanceData();
     });
 
-    // Cancelar modal
+    // Salvar despesa
+    document.getElementById('btn-save-expense').addEventListener('click', async () => {
+      const desc = document.getElementById('expenseDesc').value;
+      const cat = document.getElementById('expenseCat').value;
+      const valor = parseFloat(document.getElementById('expenseValue').value);
+      const data = document.getElementById('expenseDate').value;
+
+      if (!desc || !cat || isNaN(valor) || !data) {
+        alert('Preencha todos os campos corretamente.');
+        return;
+      }
+
+      await supabase.from('despesas').insert([
+        {
+          descricao: desc,
+          categoria: cat,
+          valor,
+          data,
+          projeto_id: null
+        }
+      ]);
+
+      closeExpenseForm();
+      loadFinanceData();
+    });
+
+    // Cancelar modais
     document.getElementById('btn-cancel-income').addEventListener('click', closeIncomeForm);
-    overlay.addEventListener('click', closeIncomeForm);
+    document.getElementById('btn-cancel-expense').addEventListener('click', closeExpenseForm);
+    overlay.addEventListener('click', () => {
+      closeIncomeForm();
+      closeExpenseForm();
+    });
 
     function closeIncomeForm() {
       overlay.style.display = 'none';
       incomeForm.style.display = 'none';
     }
-
+    function closeExpenseForm() {
+      overlay.style.display = 'none';
+      expenseForm.style.display = 'none';
+    }
     function clearIncomeForm() {
       document.getElementById('incomeDesc').value = '';
       document.getElementById('incomeValue').value = '';
       document.getElementById('incomeDate').value = '';
+    }
+    function clearExpenseForm() {
+      document.getElementById('expenseDesc').value = '';
+      document.getElementById('expenseCat').value = '';
+      document.getElementById('expenseValue').value = '';
+      document.getElementById('expenseDate').value = '';
     }
 
     filterMonthInput.addEventListener('change', loadFinanceData);
