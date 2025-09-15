@@ -1,31 +1,66 @@
-<button id="btn-toggle-sidebar" style="position:fixed;top:10px;left:10px;z-index:999;background:#4169E1;color:#fff;border-radius:8px;padding:8px 12px;font-size:16px;">☰</button>
+<link rel="stylesheet" href="style.css">
+<button id="btn-toggle-sidebar" style="position:fixed;top:10px;left:10px;z-index:999;background:#4169E1;color:#fff;border-radius:8px;padding:8px 12px;font-size:16px;display:flex;align-items:center;gap:6px;">
+  <svg id="icon-toggle" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 12l6 6 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
 <div class="sidebar">
-  <h1>Movelaria</h1>
-  <a href="dashboard.html">
+  <h1 id="sidebar-title">Movelaria</h1>
+  <a href="dashboard.html" class="sidebar-link">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:8px;"><path d="M3 10.5V21h6v-5h6v5h6V10.5L12 3 3 10.5z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Dashboard
+    <span class="sidebar-text">Dashboard</span>
   </a>
-  <a href="financeiro.html">
+  <a href="financeiro.html" class="sidebar-link">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:8px;"><path d="M12 1v22M17 5H7a5 5 0 0 0 0 10h10a5 5 0 0 1 0 10H7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Financeiro
+    <span class="sidebar-text">Financeiro</span>
   </a>
-  <a href="#" id="btn-logout">
+  <a href="#" id="btn-logout" class="sidebar-link">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:8px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 17l5-5-5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Sair
+    <span class="sidebar-text">Sair</span>
   </a>
 </div>
+<style>
+  .sidebar.minimized #sidebar-title,
+  .sidebar.minimized .sidebar-text {
+    display: none;
+  }
+  .sidebar.minimized {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    overflow-x: hidden;
+    padding: 16px 0 0 0;
+    align-items: center;
+  }
+  .sidebar {
+    transition: width 0.2s;
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
+    background: #4169E1;
+    color: #fff;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 998;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+  }
+</style>
 <script>
   const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
   const sidebarDiv = document.querySelector('.sidebar');
-  let sidebarVisible = true;
+  const iconToggle = document.getElementById('icon-toggle');
+  let sidebarMinimized = false;
   btnToggleSidebar.addEventListener('click', () => {
-    sidebarVisible = !sidebarVisible;
-    if (sidebarVisible) {
-      sidebarDiv.style.display = '';
-      btnToggleSidebar.textContent = '☰';
+    sidebarMinimized = !sidebarMinimized;
+    if (sidebarMinimized) {
+      sidebarDiv.classList.add('minimized');
+      iconToggle.innerHTML = '<path d="M6 6l6 6 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
     } else {
-      sidebarDiv.style.display = 'none';
-      btnToggleSidebar.textContent = '⮞';
+      sidebarDiv.classList.remove('minimized');
+      iconToggle.innerHTML = '<path d="M6 12l6 6 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
     }
   });
 </script>
