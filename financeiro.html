@@ -7,7 +7,7 @@
 </head>
 <body>
   <div id="sidebar"></div>
-  
+
   <div class="main">
     <h2>Resumo Financeiro</h2>
 
@@ -68,6 +68,21 @@
             window.location.href = 'index.html';
           });
         }
+        // Adiciona eventListener do botão de esconder sidebar
+        const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+        const sidebarDiv = document.querySelector('.sidebar');
+        const iconToggle = document.getElementById('icon-toggle');
+        let sidebarMinimized = false;
+        btnToggleSidebar.addEventListener('click', () => {
+          sidebarMinimized = !sidebarMinimized;
+          if (sidebarMinimized) {
+            sidebarDiv.classList.add('minimized');
+            iconToggle.innerHTML = '<path d="M6 6l6 6 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+          } else {
+            sidebarDiv.classList.remove('minimized');
+            iconToggle.innerHTML = '<path d="M6 12l6 6 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+          }
+        });
       });
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
