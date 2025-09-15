@@ -98,9 +98,15 @@
       }
     })();
 
-    const filterMonthInput = document.getElementById('filterMonth');
-    const overlay = document.getElementById('overlay');
-    const incomeForm = document.getElementById('incomeForm');
+  const filterMonthInput = document.getElementById('filterMonth');
+  const overlay = document.getElementById('overlay');
+  const incomeForm = document.getElementById('incomeForm');
+
+  // Define filtro do mês atual ao carregar
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = now.getFullYear();
+  filterMonthInput.value = `${year}-${month}`;
 
     async function loadFinanceData() {
       const { data: despesas } = await supabase.from('despesas').select('*');
