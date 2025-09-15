@@ -9,13 +9,7 @@
 <body>
   <!-- Botão para esconder/exibir sidebar -->
   <button id="btn-toggle-sidebar" style="position:fixed;top:10px;left:10px;z-index:999;background:#4169E1;color:#fff;border-radius:8px;padding:8px 12px;font-size:16px;">☰</button>
-  <div class="sidebar" id="sidebar">
-    <h1>RA Movelaria</h1>
-    <a href="#">Dashboard</a>
-    <a href="#">Clientes</a>
-    <a href="financeiro.html">Financeiro</a>
-    <a href="#" id="btn-logout">Sair</a>
-  </div>
+  <div id="sidebar"></div>
 
   <!-- Conteúdo Principal -->
   <div class="main">
@@ -56,6 +50,20 @@
 
   <!-- JavaScript -->
   <script type="module">
+    // Importa sidebar.html
+    fetch('sidebar.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('sidebar').innerHTML = html;
+        // Reativa botão logout
+        const btnLogout = document.getElementById('btn-logout');
+        if (btnLogout) {
+          btnLogout.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+          });
+        }
+      });
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const supabaseUrl = 'https://oncnehknyafxttztjteu.supabase.co';
