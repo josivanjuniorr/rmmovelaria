@@ -246,14 +246,14 @@
         return;
       }
 
-      const { error } = await supabase.from('receitas').insert([
-        {
-          descricao: desc,
-          valor,
-          data,
-          projeto_id: null
-        }
-      ]);
+
+      // Se não houver projeto, não envia projeto_id
+      const receitaData = {
+        descricao: desc,
+        valor,
+        data
+      };
+      const { error } = await supabase.from('receitas').insert([receitaData]);
 
       if (error) {
         alert('Erro ao salvar receita: ' + error.message);
