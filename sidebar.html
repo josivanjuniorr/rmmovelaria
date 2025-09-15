@@ -17,37 +17,7 @@
     <span class="sidebar-text">Sair</span>
   </a>
 </div>
-<style>
-  .sidebar.minimized #sidebar-title,
-  .sidebar.minimized .sidebar-text {
-    display: none;
-  }
-  .sidebar.minimized {
-    width: 60px;
-    min-width: 60px;
-    max-width: 60px;
-    overflow-x: hidden;
-    padding: 16px 0 0 0;
-    align-items: center;
-  }
-  .sidebar {
-    transition: width 0.2s;
-    width: 220px;
-    min-width: 220px;
-    max-width: 220px;
-    background: #4169E1;
-    color: #fff;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 998;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.08);
-  }
-</style>
+
 <script>
   const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
   const sidebarDiv = document.querySelector('.sidebar');
