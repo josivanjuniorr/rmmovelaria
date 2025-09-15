@@ -306,7 +306,16 @@
       window.location.href = 'index.html';
     });
     const id = getIdFromUrl();
-  if (id !== null && id !== undefined && id !== '') {
+    if (id !== null && id !== undefined && id !== '') {
+      // Modo edição: garantir que campos estejam visíveis
+      document.querySelector('.form-section .expense-form').style.display = '';
+      document.getElementById('projectExpensesList').style.display = '';
+      document.getElementById('totalDespesas').style.display = '';
+      document.querySelector('.form-section .income-form').style.display = '';
+      document.getElementById('projectIncomesList').style.display = '';
+      document.getElementById('totalReceitas').style.display = '';
+      document.querySelector('.form-section h4').style.display = '';
+      document.querySelectorAll('.form-section h4')[1].style.display = '';
       loadProject(id);
       loadExpensesForProject(id);
       loadIncomesForProject(id);
