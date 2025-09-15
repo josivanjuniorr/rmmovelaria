@@ -85,6 +85,8 @@
             window.location.href = 'index.html';
           });
         }
+        // Adiciona eventListener do botão logout aqui, removendo duplicidade abaixo
+        // Adiciona eventListener do botão de esconder sidebar se necessário
       });
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -301,10 +303,7 @@
     document.getElementById('btn-add-income').addEventListener('click', addIncomeToProject);
 
     document.getElementById('projectFormPage').addEventListener('submit', saveProject);
-    document.getElementById('btn-logout').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = 'index.html';
-    });
+
     const id = getIdFromUrl();
     if (id !== null && id !== undefined && id !== '') {
       // Modo edição: garantir que campos estejam visíveis
