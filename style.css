@@ -71,49 +71,22 @@
 /* Ajuste específico para rolagem no iPhone/Safari */
 @media (max-width: 700px) {
   #projectScrollContainer {
-    position: static !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    overflow-y: scroll !important;
-    -webkit-overflow-scrolling: touch !important;
-    touch-action: pan-y !important;
+    position: static;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    overflow-y: visible;
     background: #fff;
     box-sizing: border-box;
     padding-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
 }
 /* Força rolagem mobile absoluta para o container do projeto */
-@media (max-width: 700px) {
-  #projectScrollContainer {
-    position: static !important;
-    width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow-y: visible !important;
-    z-index: auto;
-    background: #fff;
-    box-sizing: border-box;
-    padding-bottom: 12px;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
-  }
-}
+/* removido: duplicado e conflitante */
 /* Ajuste extra para rolagem mobile suave e funcional */
-@media (max-width: 700px) {
-  #projectScrollContainer {
-    max-height: 100dvh !important;
-    height: 100dvh !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
-    box-sizing: border-box;
-    width: 100vw !important;
-    margin: 0 auto !important;
-    padding-bottom: 12px;
-    background: #fff;
-  }
-}
+/* removido: duplicado e conflitante */
 /* Corrige rolagem do container do projeto em mobile */
 /* Sidebar styles extraídos de sidebar.html */
 .sidebar.minimized #sidebar-title,
@@ -129,17 +102,7 @@
   align-items: center;
 }
 
-@media (max-width: 700px) {
-  #projectScrollContainer {
-    max-height: 90vh !important;
-    height: 90vh !important;
-    overflow-y: auto !important;
-    box-sizing: border-box;
-    width: 98vw !important;
-    margin: 0 auto !important;
-    padding-bottom: 12px;
-  }
-}
+/* removido: duplicado e conflitante */
 /* Estilo para o formulário da página de projeto (igual ao modal) */
 #projectFormPage {
   position: relative;
