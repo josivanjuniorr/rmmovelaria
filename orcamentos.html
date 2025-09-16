@@ -106,26 +106,33 @@
         btn.addEventListener('click', async (e) => {
           const id = btn.getAttribute('data-id');
           // Busca orçamento
-          const { data: [orcamento] } = await supabase.from('orcamentos').select('*').eq('id', id);
-          // Cria projeto automaticamente
-          let projetoId = null;
-          if (orcamento) {
-            const { data: projetoCriado, error } = await supabase.from('projetos').insert([
-              {
-                titulo: orcamento.titulo,
-                cliente: orcamento.cliente,
-                descricao: orcamento.descricao,
-                total: orcamento.valor,
-                prazo: orcamento.prazo,
-                status: 'producao'
-              }
-            ]).select();
-            if (projetoCriado && projetoCriado.length > 0) {
-              projetoId = projetoCriado[0].id;
-            }
+          const { data: [orcamento], error: errOrc } = await supabase.from('orcamentos').select('*').eq('id', id);
+          if (errOrc || !orcamento) {
+            alert('Erro ao buscar orçamento.');
+            return;
           }
+          // Cria projeto automaticamente
+          const { data: projetoCriado, error: errProj } = await supabase.from('projetos').insert([
+            {
+              titulo: orcamento.titulo,
+              cliente: orcamento.cliente,
+              descricao: orcamento.descricao,
+              total: orcamento.valor,
+              prazo: orcamento.prazo,
+              status: 'producao'
+            }
+          ]).select();
+          if (errProj || !projetoCriado || projetoCriado.length === 0) {
+            alert('Erro ao criar projeto.');
+            return;
+          }
+          const projetoId = projetoCriado[0].id;
           // Atualiza orçamento para aprovado e relaciona com projeto
-          await supabase.from('orcamentos').update({ aprovado: true, projeto_id: projetoId }).eq('id', id);
+          const { error: errUpdate } = await supabase.from('orcamentos').update({ aprovado: true, projeto_id: projetoId }).eq('id', id);
+          if (errUpdate) {
+            alert('Erro ao aprovar orçamento.');
+            return;
+          }
           loadBudgets();
         });
       });
