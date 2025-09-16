@@ -1098,3 +1098,31 @@ tbody tr:hover {
   padding: 5px;
   font-size: 14px;
 }
+
+/* ...existing code... */
+
+.projecao-card {
+  border-left: 6px solid #a86c00;
+  background: #ffe9c6;
+  color: #a86c00;
+}
+
+.saldo-receber-card {
+  border-left: 6px solid #0077b6;
+  background: #e6f7ff;
+  color: #0077b6;
+}
+
+
+.projecao-card {
+  border-left: 6px solid #a86c00;
+  background: #ffe9c6;
+  color: #a86c00;
+}
+
+.saldo-receber-card {
+  border-left: 6px solid #0077b6;
+  background: #e6f7ff;
+  color: #0077b6;
+}
+
