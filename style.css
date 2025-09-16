@@ -339,7 +339,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  z-index: 200; /* acima do overlay */
+  z-index: 10; /* abaixo do overlay/modal, acima do conteúdo */
 }
 
 .sidebar h1 {
@@ -365,7 +365,7 @@ body {
 
 /* Área principal */
 .main {
-  margin-left: 240px;
+  margin-left: 220px;
   padding: 30px;
   flex: 1;
 }
