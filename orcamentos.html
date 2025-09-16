@@ -14,10 +14,10 @@
       <button id="btn-new-budget">Novo Orçamento</button>
     </div>
     <div id="budgetsList" class="cards-container"></div>
-    <!-- Modal Novo Orçamento -->
+    <!-- Overlay e Modais -->
     <div id="overlay"></div>
     <div id="budgetForm" class="modal">
-      <h3>Novo Orçamento</h3>
+      <h3 id="budgetFormTitle">Novo Orçamento</h3>
       <input type="text" id="budgetTitle" placeholder="Título do Projeto" />
       <input type="text" id="budgetClient" placeholder="Cliente" />
       <textarea id="budgetDesc" placeholder="Descrição"></textarea>
@@ -26,6 +26,14 @@
       <div class="modal-actions">
         <button id="btn-save-budget" class="save-btn">Salvar</button>
         <button id="btn-cancel-budget" class="cancel-btn">Cancelar</button>
+      </div>
+    </div>
+    <div id="deleteConfirm" class="modal" style="display:none;">
+      <h3>Excluir Orçamento</h3>
+      <p>Tem certeza que deseja excluir este orçamento?</p>
+      <div class="modal-actions">
+        <button id="btn-confirm-delete" class="save-btn">Excluir</button>
+        <button id="btn-cancel-delete" class="cancel-btn">Cancelar</button>
       </div>
     </div>
   </div>
@@ -85,8 +93,10 @@
           </div>
           <div class="card-item-desc">${b.titulo} - ${b.cliente}</div>
           <div class="card-item-desc">${b.descricao}</div>
-          <div style="margin-top:8px;">
+          <div style="margin-top:8px;display:flex;gap:8px;">
             <button class="btn-aprovar" data-id="${b.id}" ${b.aprovado ? 'disabled' : ''}>${b.aprovado ? 'Aprovado' : 'Aprovar'}</button>
+            <button class="btn-editar" data-id="${b.id}" ${b.aprovado ? 'disabled' : ''}>Editar</button>
+            <button class="btn-excluir" data-id="${b.id}">Excluir</button>
           </div>
         `;
         budgetsList.appendChild(card);
@@ -95,13 +105,12 @@
       document.querySelectorAll('.btn-aprovar').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           const id = btn.getAttribute('data-id');
-          // Atualiza orçamento para aprovado
-          await supabase.from('orcamentos').update({ aprovado: true }).eq('id', id);
           // Busca orçamento
           const { data: [orcamento] } = await supabase.from('orcamentos').select('*').eq('id', id);
           // Cria projeto automaticamente
+          let projetoId = null;
           if (orcamento) {
-            await supabase.from('projetos').insert([
+            const { data: projetoCriado, error } = await supabase.from('projetos').insert([
               {
                 titulo: orcamento.titulo,
                 cliente: orcamento.cliente,
@@ -110,9 +119,42 @@
                 prazo: orcamento.prazo,
                 status: 'producao'
               }
-            ]);
+            ]).select();
+            if (projetoCriado && projetoCriado.length > 0) {
+              projetoId = projetoCriado[0].id;
+            }
           }
+          // Atualiza orçamento para aprovado e relaciona com projeto
+          await supabase.from('orcamentos').update({ aprovado: true, projeto_id: projetoId }).eq('id', id);
           loadBudgets();
+        });
+      });
+
+      // Editar orçamento
+      document.querySelectorAll('.btn-editar').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-id');
+          const { data: [orcamento] } = await supabase.from('orcamentos').select('*').eq('id', id);
+          if (!orcamento) return;
+          overlay.style.display = 'block';
+          budgetForm.style.display = 'block';
+          document.getElementById('budgetFormTitle').textContent = 'Editar Orçamento';
+          document.getElementById('budgetTitle').value = orcamento.titulo;
+          document.getElementById('budgetClient').value = orcamento.cliente;
+          document.getElementById('budgetDesc').value = orcamento.descricao;
+          document.getElementById('budgetValue').value = orcamento.valor;
+          document.getElementById('budgetDeadline').value = orcamento.prazo;
+          document.getElementById('btn-save-budget').setAttribute('data-edit-id', id);
+        });
+      });
+
+      // Excluir orçamento
+      document.querySelectorAll('.btn-excluir').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          overlay.style.display = 'block';
+          document.getElementById('deleteConfirm').style.display = 'block';
+          document.getElementById('btn-confirm-delete').setAttribute('data-delete-id', id);
         });
       });
     }
@@ -142,22 +184,48 @@
       const descricao = document.getElementById('budgetDesc').value;
       const valor = parseFloat(document.getElementById('budgetValue').value);
       const prazo = document.getElementById('budgetDeadline').value;
+      const editId = document.getElementById('btn-save-budget').getAttribute('data-edit-id');
       if (!titulo || !cliente || isNaN(valor) || !prazo) {
         alert('Preencha todos os campos obrigatórios.');
         return;
       }
-      await supabase.from('orcamentos').insert([
-        {
-          titulo,
-          cliente,
-          descricao,
-          valor,
-          prazo,
-          aprovado: false
-        }
-      ]);
+      if (editId) {
+        await supabase.from('orcamentos').update({
+          titulo, cliente, descricao, valor, prazo
+        }).eq('id', editId);
+        document.getElementById('btn-save-budget').removeAttribute('data-edit-id');
+        document.getElementById('budgetFormTitle').textContent = 'Novo Orçamento';
+      } else {
+        await supabase.from('orcamentos').insert([
+          {
+            titulo,
+            cliente,
+            descricao,
+            valor,
+            prazo,
+            aprovado: false
+          }
+        ]);
+      }
       closeBudgetForm();
       loadBudgets();
+    });
+
+    // Excluir orçamento
+    document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+      const deleteId = document.getElementById('btn-confirm-delete').getAttribute('data-delete-id');
+      if (deleteId) {
+        await supabase.from('orcamentos').delete().eq('id', deleteId);
+        document.getElementById('btn-confirm-delete').removeAttribute('data-delete-id');
+      }
+      document.getElementById('deleteConfirm').style.display = 'none';
+      overlay.style.display = 'none';
+      loadBudgets();
+    });
+    document.getElementById('btn-cancel-delete').addEventListener('click', () => {
+      document.getElementById('deleteConfirm').style.display = 'none';
+      overlay.style.display = 'none';
+      document.getElementById('btn-confirm-delete').removeAttribute('data-delete-id');
     });
     loadBudgets();
   </script>
