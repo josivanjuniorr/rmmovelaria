@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Orçamentos - Movelaria</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="sidebar"></div>
+  <div class="main">
+    <h2>Orçamentos de Projetos</h2>
+    <div style="margin-bottom:15px;">
+      <button id="btn-new-budget">Novo Orçamento</button>
+    </div>
+    <div id="budgetsList" class="cards-container"></div>
+    <!-- Modal Novo Orçamento -->
+    <div id="overlay"></div>
+    <div id="budgetForm" class="modal">
+      <h3>Novo Orçamento</h3>
+      <input type="text" id="budgetTitle" placeholder="Título do Projeto" />
+      <input type="text" id="budgetClient" placeholder="Cliente" />
+      <textarea id="budgetDesc" placeholder="Descrição"></textarea>
+      <input type="number" id="budgetValue" placeholder="Valor (R$)" />
+      <input type="date" id="budgetDeadline" placeholder="Prazo" />
+      <div class="modal-actions">
+        <button id="btn-save-budget" class="save-btn">Salvar</button>
+        <button id="btn-cancel-budget" class="cancel-btn">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  <script type="module">
+    // Importa sidebar
+    fetch('sidebar.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('sidebar').innerHTML = html;
+        // Botão logout
+        const btnLogout = document.getElementById('btn-logout');
+        if (btnLogout) {
+          btnLogout.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+          });
+        }
+        // Botão sidebar
+        const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+        const sidebarDiv = document.querySelector('.sidebar');
+        const iconToggle = document.getElementById('icon-toggle');
+        let sidebarMinimized = false;
+        btnToggleSidebar.addEventListener('click', () => {
+          sidebarMinimized = !sidebarMinimized;
+          if (sidebarMinimized) {
+            sidebarDiv.classList.add('minimized');
+            iconToggle.innerHTML = '<path d="M6 6l6 6 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+          } else {
+            sidebarDiv.classList.remove('minimized');
+            iconToggle.innerHTML = '<path d="M6 12l6 6 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+          }
+        });
+      });
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabaseUrl = 'https://oncnehknyafxttztjteu.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uY25laGtueWFmeHR0enRqdGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MjIzMjEsImV4cCI6MjA3MzI5ODMyMX0.qtqZAi48XqokjQOSn6hFcgVZZRlBk9UcFLeUJjTcA98';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    // Overlay/modal
+    const overlay = document.getElementById('overlay');
+    const budgetForm = document.getElementById('budgetForm');
+    // Listar orçamentos
+    async function loadBudgets() {
+      const { data: budgets } = await supabase.from('orcamentos').select('*');
+      const budgetsList = document.getElementById('budgetsList');
+      budgetsList.innerHTML = '';
+      if (!budgets || budgets.length === 0) {
+        budgetsList.innerHTML = '<div class="card-item empty">Nenhum orçamento</div>';
+        return;
+      }
+      budgets.forEach(b => {
+        const card = document.createElement('div');
+        card.className = 'card-item';
+        card.innerHTML = `
+          <div class="card-item-header">
+            <span class="card-item-date">${b.prazo || ''}</span>
+            <span class="card-item-value">R$${Number(b.valor).toFixed(2)}</span>
+          </div>
+          <div class="card-item-desc">${b.titulo} - ${b.cliente}</div>
+          <div class="card-item-desc">${b.descricao}</div>
+          <div style="margin-top:8px;">
+            <button class="btn-aprovar" data-id="${b.id}" ${b.aprovado ? 'disabled' : ''}>${b.aprovado ? 'Aprovado' : 'Aprovar'}</button>
+          </div>
+        `;
+        budgetsList.appendChild(card);
+      });
+      // Aprovar orçamento
+      document.querySelectorAll('.btn-aprovar').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = btn.getAttribute('data-id');
+          // Atualiza orçamento para aprovado
+          await supabase.from('orcamentos').update({ aprovado: true }).eq('id', id);
+          // Busca orçamento
+          const { data: [orcamento] } = await supabase.from('orcamentos').select('*').eq('id', id);
+          // Cria projeto automaticamente
+          if (orcamento) {
+            await supabase.from('projetos').insert([
+              {
+                titulo: orcamento.titulo,
+                cliente: orcamento.cliente,
+                descricao: orcamento.descricao,
+                total: orcamento.valor,
+                prazo: orcamento.prazo,
+                status: 'producao'
+              }
+            ]);
+          }
+          loadBudgets();
+        });
+      });
+    }
+    // Modal novo orçamento
+    document.getElementById('btn-new-budget').addEventListener('click', () => {
+      overlay.style.display = 'block';
+      budgetForm.style.display = 'block';
+      clearBudgetForm();
+    });
+    document.getElementById('btn-cancel-budget').addEventListener('click', closeBudgetForm);
+    overlay.addEventListener('click', closeBudgetForm);
+    function closeBudgetForm() {
+      overlay.style.display = 'none';
+      budgetForm.style.display = 'none';
+    }
+    function clearBudgetForm() {
+      document.getElementById('budgetTitle').value = '';
+      document.getElementById('budgetClient').value = '';
+      document.getElementById('budgetDesc').value = '';
+      document.getElementById('budgetValue').value = '';
+      document.getElementById('budgetDeadline').value = '';
+    }
+    // Salvar orçamento
+    document.getElementById('btn-save-budget').addEventListener('click', async () => {
+      const titulo = document.getElementById('budgetTitle').value;
+      const cliente = document.getElementById('budgetClient').value;
+      const descricao = document.getElementById('budgetDesc').value;
+      const valor = parseFloat(document.getElementById('budgetValue').value);
+      const prazo = document.getElementById('budgetDeadline').value;
+      if (!titulo || !cliente || isNaN(valor) || !prazo) {
+        alert('Preencha todos os campos obrigatórios.');
+        return;
+      }
+      await supabase.from('orcamentos').insert([
+        {
+          titulo,
+          cliente,
+          descricao,
+          valor,
+          prazo,
+          aprovado: false
+        }
+      ]);
+      closeBudgetForm();
+      loadBudgets();
+    });
+    loadBudgets();
+  </script>
+</body>
+</html>
