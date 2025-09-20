@@ -1114,12 +1114,13 @@ tbody tr:hover {
 
 
 .projecao-card {
-  border-left: 6px solid #a86c00;
-  color: #a86c00;
+  background-color: #ffe6e6; /* vermelho claro */
+  border-left: 5px solid #fa5252; /* borda vermelha */
 }
 
 .saldo-receber-card {
   border-left: 6px solid #0077b6;
   color: #0077b6;
 }
+
 
