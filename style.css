@@ -1099,23 +1099,13 @@ tbody tr:hover {
   font-size: 14px;
 }
 
-/* ...existing code... */
 
-.projecao-card {
-  border-left: 6px solid #a86c00;
-  color: #a86c00;
-}
 
-.saldo-receber-card {
-  border-left: 6px solid #0077b6;
-  background: #e6f7ff;
-  color: #0077b6;
-}
 
 
 .projecao-card {
-  background-color: #ffe6e6; /* vermelho claro */
-  border-left: 5px solid #fa5252; /* borda vermelha */
+  border-left: 5px solid #5f1717;
+  color: #5f1717;
 }
 
 .saldo-receber-card {

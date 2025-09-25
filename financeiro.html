@@ -66,9 +66,14 @@
 
     <div id="incomeForm" class="modal">
       <h3>Nova Receita</h3>
-      <input type="text" id="incomeDesc" placeholder="Descrição" />
-      <input type="number" id="incomeValue" placeholder="Valor (R$)" />
-      <input type="date" id="incomeDate" />
+      <div class="form-modern">
+        <label for="incomeDesc">Descrição</label>
+        <input type="text" id="incomeDesc" class="input-modern" placeholder="Ex: Pagamento cliente" autocomplete="off" />
+        <label for="incomeValue">Valor (R$)</label>
+        <input type="number" id="incomeValue" class="input-modern" placeholder="0,00" min="0" step="0.01" autocomplete="off" />
+        <label for="incomeDate">Data</label>
+        <input type="date" id="incomeDate" class="input-modern" />
+      </div>
       <div class="modal-actions">
         <button id="btn-save-income" class="save-btn">Salvar</button>
         <button id="btn-cancel-income" class="cancel-btn">Cancelar</button>
@@ -77,10 +82,16 @@
 
     <div id="expenseForm" class="modal">
       <h3>Nova Despesa</h3>
-      <input type="text" id="expenseDesc" placeholder="Descrição" />
-      <input type="text" id="expenseCat" placeholder="Categoria" />
-      <input type="number" id="expenseValue" placeholder="Valor (R$)" />
-      <input type="date" id="expenseDate" />
+      <div class="form-modern">
+        <label for="expenseDesc">Descrição</label>
+        <input type="text" id="expenseDesc" class="input-modern" placeholder="Ex: Compra de material" autocomplete="off" />
+        <label for="expenseCat">Categoria</label>
+        <input type="text" id="expenseCat" class="input-modern" placeholder="Ex: Material, Frete, Serviço" autocomplete="off" />
+        <label for="expenseValue">Valor (R$)</label>
+        <input type="number" id="expenseValue" class="input-modern" placeholder="0,00" min="0" step="0.01" autocomplete="off" />
+        <label for="expenseDate">Data</label>
+        <input type="date" id="expenseDate" class="input-modern" />
+      </div>
       <div class="modal-actions">
         <button id="btn-save-expense" class="save-btn">Salvar</button>
         <button id="btn-cancel-expense" class="cancel-btn">Cancelar</button>
@@ -142,8 +153,8 @@
   filterMonthInput.value = `${year}-${month}`;
 
     async function loadFinanceData() {
-      // Busca projetos para exibir nome
-      const { data: projetos } = await supabase.from('projetos').select('id, titulo');
+  // Busca projetos para exibir nome e projeção de gastos
+  const { data: projetos } = await supabase.from('projetos').select('id, titulo, projecao_gastos');
       const { data: despesas } = await supabase.from('despesas').select('*');
       const { data: receitas } = await supabase.from('receitas').select('*');
 
@@ -185,6 +196,36 @@
       document.getElementById('saldo').textContent = `R$ ${saldo.toFixed(2)}`;
       document.getElementById('caixa').textContent = `R$ ${caixa.toFixed(2)}`;
 
+      // Soma projeção de gastos e saldo a receber dos projetos que possuem despesas no mês filtrado
+      let projetosComDespesaNoMes = new Set();
+      despesasFiltradas.forEach(d => {
+        if (d.projeto_id) projetosComDespesaNoMes.add(d.projeto_id);
+      });
+      // Soma projeção de gastos
+      const totalProjecaoGastos = projetos && projetos.length > 0
+        ? projetos
+            .filter(p => projetosComDespesaNoMes.has(p.id))
+            .reduce((sum, p) => sum + (Number(p.projecao_gastos) || 0), 0)
+        : 0;
+      document.getElementById('projecaoGastos').textContent = `R$ ${totalProjecaoGastos.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+
+      // Soma saldo a receber
+      // Para cada projeto, calcula saldo a receber: valor_total - receitas recebidas
+      let totalSaldoReceber = 0;
+      if (projetos && projetos.length > 0) {
+        projetos
+          .filter(p => projetosComDespesaNoMes.has(p.id))
+          .forEach(p => {
+            // Receitas recebidas para o projeto no mês filtrado
+            const receitasProjeto = receitasFiltradas.filter(r => r.projeto_id === p.id);
+            const totalRecebido = receitasProjeto.reduce((sum, r) => sum + Number(r.valor), 0);
+            const valorTotal = Number(p.valor_total) || 0;
+            const saldoReceber = valorTotal - totalRecebido;
+            totalSaldoReceber += saldoReceber > 0 ? saldoReceber : 0;
+          });
+      }
+      document.getElementById('saldoReceber').textContent = `R$ ${totalSaldoReceber.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+
       // Renderiza receitas
       const incomesList = document.getElementById('incomesList');
       incomesList.innerHTML = '';
@@ -203,8 +244,20 @@
             </div>
             <div class="card-item-desc">${r.descricao}</div>
             <div class="card-item-projeto">Projeto: <b>${projetoNome}</b></div>
+            ${!r.projeto_id ? `<button class='btn-excluir-receita' data-id='${r.id}' style='margin-top:8px;'>Excluir</button>` : ''}
           `;
           incomesList.appendChild(card);
+        });
+        // Adiciona event listener para excluir receita
+        incomesList.querySelectorAll('.btn-excluir-receita').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const id = btn.getAttribute('data-id');
+            if (confirm('Deseja realmente excluir esta receita?')) {
+              await supabase.from('receitas').delete().eq('id', id);
+              loadFinanceData();
+            }
+          });
         });
       }
 
@@ -225,8 +278,20 @@
             </div>
             <div class="card-item-desc">${d.categoria} | ${d.descricao}</div>
             <div class="card-item-projeto">Projeto: <b>${projetoNome}</b></div>
+            ${!d.projeto_id ? `<button class='btn-excluir-despesa' data-id='${d.id}' style='margin-top:8px;'>Excluir</button>` : ''}
           `;
           expensesList.appendChild(card);
+        });
+        // Adiciona event listener para excluir despesa
+        expensesList.querySelectorAll('.btn-excluir-despesa').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const id = btn.getAttribute('data-id');
+            if (confirm('Deseja realmente excluir esta despesa?')) {
+              await supabase.from('despesas').delete().eq('id', id);
+              loadFinanceData();
+            }
+          });
         });
       }
 
