@@ -244,8 +244,7 @@
             </div>
             <div class="card-item-desc">${r.descricao}</div>
             <div class="card-item-projeto">Projeto: <b>${projetoNome}</b></div>
-            ${!r.projeto_id ? `<button class='btn-excluir-receita' data-id='${r.id}' style='margin-top:8px;'>Excluir</button>` : ''}
-          ${!r.projeto_id ? `<button class='btn-excluir-receita' data-id='${r.id}' style='background:#dc3545;color:#fff;'>Excluir</button>` : ''}
+            ${!r.projeto_id ? `<button class='btn-excluir-receita' data-id='${r.id}' style='background:#dc3545;color:#fff;'>Excluir</button>` : ''}
           `;
           incomesList.appendChild(card);
         });
@@ -279,8 +278,7 @@
             </div>
             <div class="card-item-desc">${d.categoria} | ${d.descricao}</div>
             <div class="card-item-projeto">Projeto: <b>${projetoNome}</b></div>
-            ${!d.projeto_id ? `<button class='btn-excluir-despesa' data-id='${d.id}' style='margin-top:8px;'>Excluir</button>` : ''}
-          ${!d.projeto_id ? `<button class='btn-excluir-despesa' data-id='${d.id}' style='background:#dc3545;color:#fff;'>Excluir</button>` : ''}
+            ${!d.projeto_id ? `<button class='btn-excluir-despesa' data-id='${d.id}' style='background:#dc3545;color:#fff;'>Excluir</button>` : ''}
           `;
           expensesList.appendChild(card);
         });
