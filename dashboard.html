@@ -151,6 +151,20 @@
         } else {
           console.error('Erro ao carregar receitas:', incomesError);
         }
+
+        // Carrega todas as despesas de todos os projetos
+        const { data: despesasData, error: despesasError } = await supabase
+          .from('despesas')
+          .select('*');
+
+        if (!despesasError) {
+          // Associa despesas a cada projeto
+          projects.forEach(p => {
+            p.despesas = despesasData.filter(d => d.projeto_id === p.id);
+          });
+        } else {
+          console.error('Erro ao carregar despesas:', despesasError);
+        }
       }
 
       renderCards();
