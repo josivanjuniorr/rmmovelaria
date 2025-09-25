@@ -205,7 +205,7 @@
       const totalProjecaoGastos = projetos && projetos.length > 0
         ? projetos
             .filter(p => projetosComDespesaNoMes.has(p.id))
-            .reduce((sum, p) => sum + (Number(p.projecao_gastos ?? 0)), 0)
+            .reduce((sum, p) => sum + (p.projecao_gastos == null ? 0 : Number(p.projecao_gastos)), 0)
         : 0;
       document.getElementById('projecaoGastos').textContent = `R$ ${totalProjecaoGastos.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
 
@@ -219,7 +219,7 @@
             // Receitas recebidas para o projeto no mês filtrado
             const receitasProjeto = receitasFiltradas.filter(r => r.projeto_id === p.id);
             const totalRecebido = receitasProjeto.reduce((sum, r) => sum + Number(r.valor), 0);
-            const valorTotal = Number(p.valor_total ?? 0);
+            const valorTotal = p.valor_total == null ? 0 : Number(p.valor_total);
             const saldoReceber = valorTotal - totalRecebido;
             totalSaldoReceber += saldoReceber > 0 ? saldoReceber : 0;
           });
@@ -245,6 +245,7 @@
             <div class="card-item-desc">${r.descricao}</div>
             <div class="card-item-projeto">Projeto: <b>${projetoNome}</b></div>
             ${!r.projeto_id ? `<button class='btn-excluir-receita' data-id='${r.id}' style='margin-top:8px;'>Excluir</button>` : ''}
+          ${!r.projeto_id ? `<button class='btn-excluir-receita' data-id='${r.id}' style='margin-top:8px;background:#dc3545;color:#fff;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;'>Excluir</button>` : ''}
           `;
           incomesList.appendChild(card);
         });
@@ -279,6 +280,7 @@
             <div class="card-item-desc">${d.categoria} | ${d.descricao}</div>
             <div class="card-item-projeto">Projeto: <b>${projetoNome}</b></div>
             ${!d.projeto_id ? `<button class='btn-excluir-despesa' data-id='${d.id}' style='margin-top:8px;'>Excluir</button>` : ''}
+          ${!d.projeto_id ? `<button class='btn-excluir-despesa' data-id='${d.id}' style='margin-top:8px;background:#dc3545;color:#fff;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;'>Excluir</button>` : ''}
           `;
           expensesList.appendChild(card);
         });
