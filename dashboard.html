@@ -407,8 +407,6 @@
           </div>
           <div class="info"><strong>Valor a receber:</strong> R$${p.valorAReceber.toFixed(2)}</div>
           <div class="info"><strong>Projeção de Gastos:</strong> R$${p.projecao_gastos !== undefined ? Number(p.projecao_gastos).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '0,00'}</div>
-          <div class="info"><strong>Lucro Bruto:</strong> R$${lucroBruto.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
-          ${prazoMsg}
           ${p.status === 'producao' ? `<button class='btn-entregar' style='margin-top:10px;' data-id='${p.id}'>Entregar Projeto</button>` : ''}
         `;
         card.addEventListener('click', (e) => {
