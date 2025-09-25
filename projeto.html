@@ -184,14 +184,16 @@
     async function loadProject(id) {
       const { data, error } = await supabase.from('projetos').select('*').eq('id', Number(id)).single();
       if (data) {
-  document.getElementById('projectTitle').textContent = `Projeto: ${data.titulo}`;
-  document.getElementById('title').value = data.titulo || '';
-  document.getElementById('client').value = data.cliente || '';
-  document.getElementById('description').value = data.descricao || '';
-  document.getElementById('status').value = data.status || 'producao';
-  document.getElementById('deadline').value = data.prazo || '';
-  document.getElementById('total').value = data.valor_total || '';
-  document.getElementById('projecaoGastos').value = data.projecao_gastos || '';
+        document.getElementById('projectTitle').textContent = `Projeto: ${data.titulo}`;
+        document.getElementById('title').value = data.titulo || '';
+        document.getElementById('client').value = data.cliente || '';
+        document.getElementById('description').value = data.descricao || '';
+        document.getElementById('status').value = data.status || 'producao';
+        document.getElementById('deadline').value = data.prazo || '';
+        document.getElementById('total').value = data.valor_total || '';
+        document.getElementById('projecaoGastos').value = data.projecao_gastos || '';
+        // Exibe saldo_a_receber do banco
+        document.getElementById('saldoReceberProjeto').textContent = `R$ ${(data.saldo_a_receber == null ? 0 : Number(data.saldo_a_receber)).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
       } else {
         alert('Projeto não encontrado!');
         window.location.href = 'dashboard.html';
