@@ -265,6 +265,7 @@
         alert('Preencha descrição, valor, categoria e data da despesa.');
         return;
       }
+      // Adiciona despesa
       const { error } = await supabase.from('despesas').insert([
         {
           projeto_id: getIdFromUrl(),
@@ -275,6 +276,20 @@
         },
       ]);
       if (!error) {
+        // Atualiza projecao_gastos do projeto
+        const projetoId = getIdFromUrl();
+        // Busca projeto atual
+        const { data: projeto } = await supabase.from('projetos').select('projecao_gastos').eq('id', projetoId).single();
+        let novaProjecao = 0;
+        if (projeto && projeto.projecao_gastos != null) {
+          novaProjecao = Number(projeto.projecao_gastos) - valor;
+          if (novaProjecao < 0) novaProjecao = 0;
+        }
+        await supabase.from('projetos').update({ projecao_gastos: novaProjecao }).eq('id', projetoId);
+        // Atualiza campo visual de Projeção de Gastos
+        if (document.getElementById('projecaoGastos')) {
+          document.getElementById('projecaoGastos').value = novaProjecao;
+        }
         document.getElementById('expenseDesc').value = '';
         document.getElementById('expenseValue').value = '';
         document.getElementById('expenseCategory').value = 'material';
