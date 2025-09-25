@@ -154,7 +154,7 @@
 
     async function loadFinanceData() {
   // Busca projetos para exibir nome e projeção de gastos
-  const { data: projetos } = await supabase.from('projetos').select('id, titulo, projecao_gastos');
+  const { data: projetos } = await supabase.from('projetos').select('id, titulo, projecao_gastos, saldo_a_receber');
       const { data: despesas } = await supabase.from('despesas').select('*');
       const { data: receitas } = await supabase.from('receitas').select('*');
 
