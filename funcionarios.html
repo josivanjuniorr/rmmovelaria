@@ -58,7 +58,6 @@
               <span class="card-item-cargo">${emp.cargo}</span>
             </div>
             <div class="card-item-telefone">Telefone: ${emp.telefone}</div>
-            <button class='btn-excluir-funcionario' data-id='${emp.id}' style='background:#dc3545;color:#fff;'>Excluir</button>
           `;
           card.querySelector('.btn-excluir-funcionario').addEventListener('click', async (e) => {
             e.stopPropagation();
