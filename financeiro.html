@@ -207,8 +207,8 @@
       let totalSaldoReceber = 0;
       if (projetos && projetos.length > 0) {
         projetos.forEach(p => {
-          // Receitas recebidas para o projeto no mês filtrado
-          const receitasProjeto = receitasFiltradas.filter(r => r.projeto_id === p.id);
+          // Receitas recebidas para o projeto (todas receitas, não só do mês)
+          const receitasProjeto = receitas.filter(r => r.projeto_id === p.id);
           const totalRecebido = receitasProjeto.reduce((sum, r) => sum + Number(r.valor), 0);
           const valorTotal = p.valor_total == null ? 0 : Number(p.valor_total);
           const saldoReceber = valorTotal - totalRecebido;
