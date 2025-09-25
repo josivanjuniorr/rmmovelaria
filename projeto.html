@@ -79,17 +79,25 @@
     function calcularLucroBruto() {
       const valorTotal = Number(document.getElementById('total').value) || 0;
       let totalDespesas = 0;
-      if (Array.isArray(projectExpenses) && projectExpenses.length > 0) {
-        totalDespesas = projectExpenses.reduce((sum, d) => sum + Number(d.valor), 0);
-      } else {
-        // Se não carregou despesas, tenta pegar do campo totalDespesas
-        const despesasEl = document.getElementById('totalDespesas');
-        if (despesasEl && despesasEl.textContent) {
-          const match = despesasEl.textContent.match(/([\d,.]+)/);
-          if (match) {
-            totalDespesas = Number(match[1].replace('.', '').replace(',', '.'));
+      if (Array.isArray(projectExpenses)) {
+        if (projectExpenses.length > 0) {
+          totalDespesas = projectExpenses.reduce((sum, d) => sum + Number(d.valor), 0);
+        } else {
+          // Se não há despesas, tenta pegar do campo totalDespesas
+          const despesasEl = document.getElementById('totalDespesas');
+          if (despesasEl && despesasEl.textContent) {
+            const match = despesasEl.textContent.match(/([\d,.]+)/);
+            if (match) {
+              totalDespesas = Number(match[1].replace('.', '').replace(',', '.'));
+            } else {
+              totalDespesas = 0;
+            }
+          } else {
+            totalDespesas = 0;
           }
         }
+      } else {
+        totalDespesas = 0;
       }
       const lucro = valorTotal - totalDespesas;
       document.getElementById('lucroBruto').textContent = `R$ ${lucro.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
