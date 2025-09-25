@@ -95,11 +95,14 @@
       document.getElementById('lucroBruto').textContent = `R$ ${lucro.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
     }
 
-    document.getElementById('total').addEventListener('input', calcularLucroBruto);
-    document.getElementById('projecaoGastos').addEventListener('input', calcularLucroBruto);
-    // Atualiza lucro bruto ao carregar despesas
-    const observer = new MutationObserver(calcularLucroBruto);
-    observer.observe(document.getElementById('totalDespesas'), { childList: true, subtree: true });
+  document.getElementById('total').addEventListener('input', calcularLucroBruto);
+  document.getElementById('projecaoGastos').addEventListener('input', calcularLucroBruto);
+  // Atualiza lucro bruto ao carregar despesas
+  const observer = new MutationObserver(calcularLucroBruto);
+  observer.observe(document.getElementById('totalDespesas'), { childList: true, subtree: true });
+
+  // Aciona cálculo ao abrir a página
+  window.addEventListener('DOMContentLoaded', calcularLucroBruto);
     // Importa sidebar.html
     fetch('sidebar.html')
       .then(response => response.text())
