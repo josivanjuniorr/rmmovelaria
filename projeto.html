@@ -218,6 +218,7 @@
       if (!error) {
         projectExpenses = data;
         renderProjectExpenses();
+        calcularLucroBruto(); // Atualiza lucro bruto após carregar despesas
       }
     }
 
