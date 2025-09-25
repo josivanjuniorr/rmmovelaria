@@ -196,33 +196,24 @@
       document.getElementById('saldo').textContent = `R$ ${saldo.toFixed(2)}`;
       document.getElementById('caixa').textContent = `R$ ${caixa.toFixed(2)}`;
 
-      // Soma projeção de gastos e saldo a receber dos projetos que possuem despesas no mês filtrado
-      let projetosComDespesaNoMes = new Set();
-      despesasFiltradas.forEach(d => {
-        if (d.projeto_id) projetosComDespesaNoMes.add(d.projeto_id);
-      });
-      // Soma projeção de gastos
+
+      // Soma projeção de gastos de todos projetos
       const totalProjecaoGastos = projetos && projetos.length > 0
-        ? projetos
-            .filter(p => projetosComDespesaNoMes.has(p.id))
-            .reduce((sum, p) => sum + (p.projecao_gastos == null ? 0 : Number(p.projecao_gastos)), 0)
+        ? projetos.reduce((sum, p) => sum + (p.projecao_gastos == null ? 0 : Number(p.projecao_gastos)), 0)
         : 0;
       document.getElementById('projecaoGastos').textContent = `R$ ${totalProjecaoGastos.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
 
-      // Soma saldo a receber
-      // Para cada projeto, calcula saldo a receber: valor_total - receitas recebidas
+      // Soma saldo a receber de todos projetos
       let totalSaldoReceber = 0;
       if (projetos && projetos.length > 0) {
-        projetos
-          .filter(p => projetosComDespesaNoMes.has(p.id))
-          .forEach(p => {
-            // Receitas recebidas para o projeto no mês filtrado
-            const receitasProjeto = receitasFiltradas.filter(r => r.projeto_id === p.id);
-            const totalRecebido = receitasProjeto.reduce((sum, r) => sum + Number(r.valor), 0);
-            const valorTotal = p.valor_total == null ? 0 : Number(p.valor_total);
-            const saldoReceber = valorTotal - totalRecebido;
-            totalSaldoReceber += saldoReceber > 0 ? saldoReceber : 0;
-          });
+        projetos.forEach(p => {
+          // Receitas recebidas para o projeto no mês filtrado
+          const receitasProjeto = receitasFiltradas.filter(r => r.projeto_id === p.id);
+          const totalRecebido = receitasProjeto.reduce((sum, r) => sum + Number(r.valor), 0);
+          const valorTotal = p.valor_total == null ? 0 : Number(p.valor_total);
+          const saldoReceber = valorTotal - totalRecebido;
+          totalSaldoReceber += saldoReceber > 0 ? saldoReceber : 0;
+        });
       }
       document.getElementById('saldoReceber').textContent = `R$ ${totalSaldoReceber.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
 
