@@ -205,7 +205,7 @@
       const totalProjecaoGastos = projetos && projetos.length > 0
         ? projetos
             .filter(p => projetosComDespesaNoMes.has(p.id))
-            .reduce((sum, p) => sum + (Number(p.projecao_gastos) || 0), 0)
+            .reduce((sum, p) => sum + (Number(p.projecao_gastos ?? 0)), 0)
         : 0;
       document.getElementById('projecaoGastos').textContent = `R$ ${totalProjecaoGastos.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
 
@@ -219,7 +219,7 @@
             // Receitas recebidas para o projeto no mês filtrado
             const receitasProjeto = receitasFiltradas.filter(r => r.projeto_id === p.id);
             const totalRecebido = receitasProjeto.reduce((sum, r) => sum + Number(r.valor), 0);
-            const valorTotal = Number(p.valor_total) || 0;
+            const valorTotal = Number(p.valor_total ?? 0);
             const saldoReceber = valorTotal - totalRecebido;
             totalSaldoReceber += saldoReceber > 0 ? saldoReceber : 0;
           });
