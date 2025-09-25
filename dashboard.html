@@ -379,9 +379,9 @@
           <div class="info">
             <div><strong>Prazo:</strong> ${formattedDate}</div>
             <div><strong>Total:</strong> R$${p.valor_total ?? 0}</div>
-            <div><strong>Projeção de Gastos:</strong> R$${p.projecao_gastos !== undefined ? Number(p.projecao_gastos).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '0,00'}</div>
           </div>
           <div class="info"><strong>Valor a receber:</strong> R$${p.valorAReceber.toFixed(2)}</div>
+          <div><strong>Projeção de Gastos:</strong> R$${p.projecao_gastos !== undefined ? Number(p.projecao_gastos).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '0,00'}</div>
           ${prazoMsg}
           ${p.status === 'producao' ? `<button class='btn-entregar' style='margin-top:10px;' data-id='${p.id}'>Entregar Projeto</button>` : ''}
         `;
