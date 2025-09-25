@@ -36,6 +36,8 @@
             <input type="number" id="projecaoGastos" />
           <div style="margin-top:8px;font-weight:bold;">
             Lucro Bruto: <span id="lucroBruto">R$ 0,00</span>
+            <br>
+            Saldo a Receber: <span id="saldoReceberProjeto">R$ 0,00</span>
           </div>
         </div>
         <div class="form-section">
@@ -101,6 +103,28 @@
       }
       const lucro = valorTotal - totalDespesas;
       document.getElementById('lucroBruto').textContent = `R$ ${lucro.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+
+      // Saldo a receber = valor_total - receitas recebidas
+      let totalReceitasProjeto = 0;
+      if (Array.isArray(projectIncomes) && projectIncomes.length > 0) {
+        totalReceitasProjeto = projectIncomes.reduce((sum, r) => sum + Number(r.valor), 0);
+      } else {
+        // Se não há receitas, tenta pegar do campo totalReceitas
+        const receitasEl = document.getElementById('totalReceitas');
+        if (receitasEl && receitasEl.textContent) {
+          const match = receitasEl.textContent.match(/([\d,.]+)/);
+          if (match) {
+            totalReceitasProjeto = Number(match[1].replace('.', '').replace(',', '.'));
+          } else {
+            totalReceitasProjeto = 0;
+          }
+        } else {
+          totalReceitasProjeto = 0;
+        }
+      }
+      let saldoReceberProjeto = valorTotal - totalReceitasProjeto;
+      if (saldoReceberProjeto < 0) saldoReceberProjeto = 0;
+      document.getElementById('saldoReceberProjeto').textContent = `R$ ${saldoReceberProjeto.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
     }
 
   document.getElementById('total').addEventListener('input', calcularLucroBruto);
@@ -360,6 +384,18 @@
         },
       ]);
       if (!error) {
+        // Atualiza saldo a receber visualmente
+        const projetoId = getIdFromUrl();
+        const { data: projeto } = await supabase.from('projetos').select('valor_total').eq('id', projetoId).single();
+        let valorTotal = projeto && projeto.valor_total != null ? Number(projeto.valor_total) : 0;
+        // Busca receitas do projeto
+        const { data: receitasProjeto } = await supabase.from('receitas').select('valor').eq('projeto_id', projetoId);
+        let totalRecebido = receitasProjeto && receitasProjeto.length > 0 ? receitasProjeto.reduce((sum, r) => sum + Number(r.valor), 0) : 0;
+        let saldoReceberProjeto = valorTotal - totalRecebido;
+        if (saldoReceberProjeto < 0) saldoReceberProjeto = 0;
+        if (document.getElementById('saldoReceberProjeto')) {
+          document.getElementById('saldoReceberProjeto').textContent = `R$ ${saldoReceberProjeto.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+        }
         document.getElementById('incomeDesc').value = '';
         document.getElementById('incomeValue').value = '';
         document.getElementById('incomeDate').value = '';

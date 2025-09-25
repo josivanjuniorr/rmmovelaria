@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Funcionários - Movelaria</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="sidebar"></div>
+  <div class="main">
+    <h2>Funcionários</h2>
+    <div class="cards-row">
+      <button id="btn-new-employee" class="save-btn">Novo Funcionário</button>
+    </div>
+    <div id="employeesList" class="cards-list"></div>
+    <div id="overlay"></div>
+    <div id="employeeForm" class="modal">
+      <h3>Novo Funcionário</h3>
+      <div class="form-modern">
+        <label for="employeeName">Nome</label>
+        <input type="text" id="employeeName" class="input-modern" placeholder="Nome completo" autocomplete="off" />
+        <label for="employeeRole">Cargo</label>
+        <input type="text" id="employeeRole" class="input-modern" placeholder="Cargo" autocomplete="off" />
+        <label for="employeePhone">Telefone</label>
+        <input type="tel" id="employeePhone" class="input-modern" placeholder="(99) 99999-9999" autocomplete="off" />
+      </div>
+      <div class="modal-actions">
+        <button id="btn-save-employee" class="save-btn">Salvar</button>
+        <button id="btn-cancel-employee" class="cancel-btn">Cancelar</button>
+      </div>
+    </div>
+    <script type="module">
+    fetch('sidebar.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('sidebar').innerHTML = html;
+      });
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabaseUrl = 'https://oncnehknyafxttztjteu.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uY25laGtueWFmeHR0enRqdGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MjIzMjEsImV4cCI6MjA3MzI5ODMyMX0.qtqZAi48XqokjQOSn6hFcgVZZRlBk9UcFLeUJjTcA98';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const overlay = document.getElementById('overlay');
+    const employeeForm = document.getElementById('employeeForm');
+    async function loadEmployees() {
+      const { data: employees } = await supabase.from('funcionarios').select('*');
+      const employeesList = document.getElementById('employeesList');
+      employeesList.innerHTML = '';
+      if (!employees || employees.length === 0) {
+        employeesList.innerHTML = '<div class="card-item empty">Nenhum funcionário cadastrado</div>';
+      } else {
+        employees.forEach(emp => {
+          const card = document.createElement('div');
+          card.className = 'card-item funcionario';
+          card.innerHTML = `
+            <div class="card-item-header">
+              <span class="card-item-nome"><b>${emp.nome}</b></span>
+              <span class="card-item-cargo">${emp.cargo}</span>
+            </div>
+            <div class="card-item-telefone">Telefone: ${emp.telefone}</div>
+            <button class='btn-excluir-funcionario' data-id='${emp.id}' style='background:#dc3545;color:#fff;'>Excluir</button>
+          `;
+          card.querySelector('.btn-excluir-funcionario').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const id = emp.id;
+            if (confirm('Deseja realmente excluir este funcionário?')) {
+              await supabase.from('funcionarios').delete().eq('id', id);
+              loadEmployees();
+            }
+          });
+          employeesList.appendChild(card);
+        });
+      }
+    }
+    document.getElementById('btn-new-employee').addEventListener('click', () => {
+      overlay.style.display = 'block';
+      employeeForm.style.display = 'block';
+      clearEmployeeForm();
+    });
+    document.getElementById('btn-save-employee').addEventListener('click', async () => {
+      const nome = document.getElementById('employeeName').value;
+      const cargo = document.getElementById('employeeRole').value;
+      const telefone = document.getElementById('employeePhone').value;
+      if (!nome || !cargo || !telefone) {
+        alert('Preencha todos os campos corretamente.');
+        return;
+      }
+      const { error } = await supabase.from('funcionarios').insert([
+        { nome, cargo, telefone }
+      ]);
+      if (error) {
+        alert('Erro ao salvar funcionário: ' + error.message);
+        return;
+      }
+      closeEmployeeForm();
+      loadEmployees();
+    });
+    document.getElementById('btn-cancel-employee').addEventListener('click', closeEmployeeForm);
+    overlay.addEventListener('click', () => {
+      closeEmployeeForm();
+    });
+    function closeEmployeeForm() {
+      overlay.style.display = 'none';
+      employeeForm.style.display = 'none';
+    }
+    function clearEmployeeForm() {
+      document.getElementById('employeeName').value = '';
+      document.getElementById('employeeRole').value = '';
+      document.getElementById('employeePhone').value = '';
+    }
+    loadEmployees();
+    </script>
+</body>
+</html>
