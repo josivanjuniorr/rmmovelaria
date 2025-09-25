@@ -384,7 +384,7 @@
         },
       ]);
       if (!error) {
-        // Atualiza saldo a receber visualmente
+        // Atualiza saldo a receber visualmente e no banco
         const projetoId = getIdFromUrl();
         const { data: projeto } = await supabase.from('projetos').select('valor_total').eq('id', projetoId).single();
         let valorTotal = projeto && projeto.valor_total != null ? Number(projeto.valor_total) : 0;
@@ -393,9 +393,12 @@
         let totalRecebido = receitasProjeto && receitasProjeto.length > 0 ? receitasProjeto.reduce((sum, r) => sum + Number(r.valor), 0) : 0;
         let saldoReceberProjeto = valorTotal - totalRecebido;
         if (saldoReceberProjeto < 0) saldoReceberProjeto = 0;
+        // Atualiza campo visual
         if (document.getElementById('saldoReceberProjeto')) {
           document.getElementById('saldoReceberProjeto').textContent = `R$ ${saldoReceberProjeto.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
         }
+        // Atualiza campo no banco
+        await supabase.from('projetos').update({ saldo_a_receber: saldoReceberProjeto }).eq('id', projetoId);
         document.getElementById('incomeDesc').value = '';
         document.getElementById('incomeValue').value = '';
         document.getElementById('incomeDate').value = '';

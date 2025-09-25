@@ -1,3 +1,5 @@
+-- Adiciona campo saldo_a_receber na tabela projetos
+ALTER TABLE projetos ADD COLUMN saldo_a_receber numeric;
 -- Adiciona coluna projeto_id à tabela orcamentos
 ALTER TABLE orcamentos ADD COLUMN projeto_id INTEGER REFERENCES projetos(id);
 

@@ -203,17 +203,10 @@
         : 0;
       document.getElementById('projecaoGastos').textContent = `R$ ${totalProjecaoGastos.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
 
-      // Soma saldo a receber de todos projetos
+      // Soma saldo_a_receber de todos projetos
       let totalSaldoReceber = 0;
       if (projetos && projetos.length > 0) {
-        projetos.forEach(p => {
-          // Receitas recebidas para o projeto (todas receitas, não só do mês)
-          const receitasProjeto = receitas.filter(r => r.projeto_id === p.id);
-          const totalRecebido = receitasProjeto.reduce((sum, r) => sum + Number(r.valor), 0);
-          const valorTotal = p.valor_total == null ? 0 : Number(p.valor_total);
-          const saldoReceber = valorTotal - totalRecebido;
-          totalSaldoReceber += saldoReceber > 0 ? saldoReceber : 0;
-        });
+        totalSaldoReceber = projetos.reduce((sum, p) => sum + (p.saldo_a_receber == null ? 0 : Number(p.saldo_a_receber)), 0);
       }
       document.getElementById('saldoReceber').textContent = `R$ ${totalSaldoReceber.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
 
