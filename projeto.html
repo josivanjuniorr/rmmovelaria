@@ -34,6 +34,9 @@
           <input type="number" id="total" />
             <label for="projecaoGastos">Projeção de Gastos (R$)</label>
             <input type="number" id="projecaoGastos" />
+          <div style="margin-top:8px;font-weight:bold;">
+            Lucro Bruto: <span id="lucroBruto">R$ 0,00</span>
+          </div>
         </div>
         <div class="form-section">
           <h4>Despesas do Projeto</h4>
@@ -73,6 +76,30 @@
     </div>
   </div>
   <script type="module">
+    function calcularLucroBruto() {
+      const valorTotal = Number(document.getElementById('total').value) || 0;
+      let totalDespesas = 0;
+      if (Array.isArray(projectExpenses) && projectExpenses.length > 0) {
+        totalDespesas = projectExpenses.reduce((sum, d) => sum + Number(d.valor), 0);
+      } else {
+        // Se não carregou despesas, tenta pegar do campo totalDespesas
+        const despesasEl = document.getElementById('totalDespesas');
+        if (despesasEl && despesasEl.textContent) {
+          const match = despesasEl.textContent.match(/([\d,.]+)/);
+          if (match) {
+            totalDespesas = Number(match[1].replace('.', '').replace(',', '.'));
+          }
+        }
+      }
+      const lucro = valorTotal - totalDespesas;
+      document.getElementById('lucroBruto').textContent = `R$ ${lucro.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    }
+
+    document.getElementById('total').addEventListener('input', calcularLucroBruto);
+    document.getElementById('projecaoGastos').addEventListener('input', calcularLucroBruto);
+    // Atualiza lucro bruto ao carregar despesas
+    const observer = new MutationObserver(calcularLucroBruto);
+    observer.observe(document.getElementById('totalDespesas'), { childList: true, subtree: true });
     // Importa sidebar.html
     fetch('sidebar.html')
       .then(response => response.text())
@@ -122,13 +149,14 @@
     async function loadProject(id) {
       const { data, error } = await supabase.from('projetos').select('*').eq('id', Number(id)).single();
       if (data) {
-        document.getElementById('projectTitle').textContent = `Projeto: ${data.titulo}`;
-        document.getElementById('title').value = data.titulo || '';
-        document.getElementById('client').value = data.cliente || '';
-        document.getElementById('description').value = data.descricao || '';
-        document.getElementById('status').value = data.status || 'producao';
-        document.getElementById('deadline').value = data.prazo || '';
-        document.getElementById('total').value = data.valor_total || '';
+  document.getElementById('projectTitle').textContent = `Projeto: ${data.titulo}`;
+  document.getElementById('title').value = data.titulo || '';
+  document.getElementById('client').value = data.cliente || '';
+  document.getElementById('description').value = data.descricao || '';
+  document.getElementById('status').value = data.status || 'producao';
+  document.getElementById('deadline').value = data.prazo || '';
+  document.getElementById('total').value = data.valor_total || '';
+  document.getElementById('projecaoGastos').value = data.projecao_gastos || '';
       } else {
         alert('Projeto não encontrado!');
         window.location.href = 'dashboard.html';
@@ -138,12 +166,13 @@
       e.preventDefault();
       const id = getIdFromUrl();
       const projectData = {
-        titulo: document.getElementById('title').value,
-        cliente: document.getElementById('client').value,
-        descricao: document.getElementById('description').value,
-        status: document.getElementById('status').value,
-        prazo: document.getElementById('deadline').value,
-        valor_total: Number(document.getElementById('total').value),
+  titulo: document.getElementById('title').value,
+  cliente: document.getElementById('client').value,
+  descricao: document.getElementById('description').value,
+  status: document.getElementById('status').value,
+  prazo: document.getElementById('deadline').value,
+  valor_total: Number(document.getElementById('total').value),
+  projecao_gastos: Number(document.getElementById('projecaoGastos').value),
       };
       if (id) {
         // Editar projeto existente
